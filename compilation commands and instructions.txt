@@ -1,0 +1,38 @@
+Instrukcja kompilowania: (jak coś nie działa to http://stackoverflow.com/questions/25128579/ld-cannot-perform-pe-operations-on-non-pe-output-file-error)
+
+1. stworzyć plik kernel_entry.asm np. taki:
+
+[bits 32]
+[extern _start]
+call _start
+jmp $ 
+
+2. skompilować
+nasm -f win32 kernel_entry.asm -o kernel_entry.o
+
+3. stworzyć plik kernel.c
+4. skompilować kernel.c
+gcc -ffreestanding -c kernel.c -o kernel.o
+
+5. stworzyć przejściowy plik .tmp
+ld -T NUL -o kernel.tmp -Ttext 0x1000 kernel_entry.o kernel.o
+
+6. zlaczyc pliki
+objcopy -O binary -j .text kernel.tmp kernel.bin
+
+7. sprawdzic co stworzylismy (opcjonalnie)
+ndisasm -b 32 kernel.bin > kernel.dis 
+
+8. kernel.dis otworzyc notepadem
+
+*****************************************
+
+Aby skompilować jedynie boot_sect.asm zrob tak:
+
+1.nasm boot_sect.asm -f bin -o boot_sect.bin
+
+2.copy /b boot_sect.bin+kernel.bin os-image.img
+
+**************************************
+
+W makefile'u nie możemy używać komend windowsowych, bo są one wywoływane ze środowiska linuxowego -> czyli mamy dostępne tylko komendy linuksowe komendy
