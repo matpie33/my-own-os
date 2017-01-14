@@ -8,8 +8,8 @@ clean:
 
 os-image.img: boot/boot_sect.bin kernel.bin
 	cat $^ > $@
-
-%.bin: %.asm
+	
+boot/boot_sect.bin:  boot/boot_sect.asm boot/**/*.asm
 	nasm $< -f bin -I "boot/" -o $@
 	
 kernel.bin: kernel.tmp

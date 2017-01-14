@@ -17,6 +17,7 @@ jmp $
 %include "pm/gdt.asm"
 %include "pm/print_string_pm.asm"
 %include "pm/switch_to_pm.asm"
+%include "pm/clear_screen.asm"
 
 [ bits 16]
 ; load_kernel
@@ -32,7 +33,10 @@ ret
 ; This is where we arrive after switching to and initialising protected mode.
 BEGIN_PM :
 
-mov edx, VIDEO_MEMORY ; Set edx to the start of vid mem.
+
+mov edx, VIDEO_MEMORY ;  Set edx to the start of vid mem.
+call clear_screen
+mov edx, VIDEO_MEMORY
 mov ebx, MSG_PROT_MODE ; Use our 32- bit print routine to
 call print_string_pm ; announce we are in protected mode
 mov ebx,MSG_WAIT
@@ -45,7 +49,7 @@ jmp $ ; Hang.
 BOOT_DRIVE db 0
 MSG_REAL_MODE db "Started in 16- bit Real Mode", 0
 MSG_WAIT db "Now waiting...", 0
-MSG_PROT_MODE db " Successfully landed in 32- bit Protected Mode. ", 0
+MSG_PROT_MODE db " Successfully landed in 32- bit Protected Mode.", 0
 MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
 ; Bootsector padding
 times 510-($-$$) db 0
