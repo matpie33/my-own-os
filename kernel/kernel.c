@@ -5,4 +5,8 @@ char* video_memory = ( char*) 0xb8000 ;
 // At the address pointed to by video_memory , store the character 'X'
 // (i.e. display 'X' in the top - left of the screen ).
 *video_memory = '?';
-}
+clear_screen();
+
+print_at ("charsakl",1,1);
+
+} 

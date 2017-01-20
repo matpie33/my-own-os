@@ -5,6 +5,10 @@ OBJ = ${C_SOURCES:.c=.o}
 
 clean:
 	rm *.bin *.o *.img *.tmp **/*.bin **/*.o **/*.tmp **/*.img	
+	
+run:
+	make os-image.img
+	bochs
 
 os-image.img: boot/boot_sect.bin kernel.bin
 	cat $^ > $@
