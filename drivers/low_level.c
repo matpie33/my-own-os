@@ -18,4 +18,4 @@ return result ;
 }
 void port_word_out ( unsigned short port , unsigned short data ) {
 __asm__ (" out %%ax , %%dx" : :"a" ( data ), "d" ( port ));
-}
+} 
