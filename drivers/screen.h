@@ -15,3 +15,6 @@ void set_cursor (int offset );
 void print_at ( char* message , int col , int row );
 int print_char ( char character , int col , int row , char attribute_byte );
 void println(char * message);
+void clear_screen ();
+void print_backspace();
+void print_tab();

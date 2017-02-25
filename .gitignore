@@ -1,2 +1,8 @@
 bochs.lnk
 bochsout.txt
+*.bin
+*.o
+.cproject
+.project
+*.img
+.settings/language.settings.xml

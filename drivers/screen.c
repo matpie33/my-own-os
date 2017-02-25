@@ -1,5 +1,8 @@
 #include "screen.h"
-#include "low_level.h"
+#include "../libc/mem.h"
+#include "../cpu/port_read_write.h"
+
+
 
 int get_cursor () {
 	/** The device uses its control register as an index
@@ -40,6 +43,31 @@ void set_cursor (int offset ) {
 	port_byte_out ( REG_SCREEN_DATA, (unsigned char)(offset & 0xff));
 }
 
+int handle_scrolling ( int cursor_offset ) {
+
+	if ( cursor_offset < MAX_ROWS * MAX_COLS *2) {
+		return cursor_offset ;
+	}
+	/* Shuffle the rows back one . */
+	int i;
+	for (i =1; i< MAX_ROWS ; i ++) {
+		memory_copy ( (u8*) (get_screen_offset (i, 0) + VIDEO_ADDRESS),
+		(u8*) (get_screen_offset (i -1, 0) + VIDEO_ADDRESS),
+		MAX_COLS *2
+		);
+	}
+	/* Blank the last line by setting all bytes to 0 */
+	char* last_line = (char*)(get_screen_offset (MAX_ROWS -1, 0) + VIDEO_ADDRESS) ;
+	for (i =0; i < MAX_COLS *2; i++) {
+		last_line [i] = 0;
+	}
+	// Move the offset back one row , such that it is now on the last
+	// row , rather than off the edge of the screen .
+	cursor_offset -= 2* MAX_COLS ;
+	// Return the updated cursor position .
+	return cursor_offset ;
+}
+
 int print_char ( char character , int col , int row , char attribute_byte ) {
 	
 	unsigned char *vidmem = ( unsigned char*) VIDEO_ADDRESS ;
@@ -64,12 +92,18 @@ int print_char ( char character , int col , int row , char attribute_byte ) {
 		if ( character == '\n') {	
 			int rows = offset / (2* MAX_COLS );
 			offset = get_screen_offset (rows, 79);
+			offset +=2;
 		} 
+		else if (character == 0x08){
+			vidmem[offset] = ' ';
+			vidmem[offset+1]= attribute_byte;
+		}
 		else {
 			vidmem [ offset ] = character ;
 			vidmem [ offset +1] = attribute_byte ;
+			offset += 2;
 		}
-	offset += 2;
+
 	offset = handle_scrolling ( offset );
 	 
 	set_cursor ( offset );
@@ -95,7 +129,6 @@ int get_offset_col(int offset) { return (offset - (get_offset_row(offset)*2*MAX_
 
 
 void print ( char * message ) {
-	
 	print_at ( message , -1, -1);
 }
 
@@ -116,29 +149,16 @@ int col = 0;
 set_cursor ( get_screen_offset (0, 0));
 }
 
-int handle_scrolling ( int cursor_offset ) {
-	
-if ( cursor_offset < MAX_ROWS * MAX_COLS *2) {
-	return cursor_offset ;
+void print_backspace() {
+    int offset = get_cursor()-2;
+    int row = get_offset_row(offset);
+    int col = get_offset_col(offset);
+    print_char(0x08, col, row, WHITE_ON_BLACK);
 }
-/* Shuffle the rows back one . */
-int i;
-for (i =1; i< MAX_ROWS ; i ++) {
-	memory_copy ( get_screen_offset (i, 0) + VIDEO_ADDRESS ,
-	get_screen_offset (i -1, 0) + VIDEO_ADDRESS ,
-	MAX_COLS *2
-	);
+
+void print_tab(){
+	print("    ");
 }
-/* Blank the last line by setting all bytes to 0 */
-char* last_line = (char*)(get_screen_offset (MAX_ROWS -1, 0) + VIDEO_ADDRESS) ;
-for (i =0; i < MAX_COLS *2; i++) {
-	last_line [i] = 0;
-}
-// Move the offset back one row , such that it is now on the last
-// row , rather than off the edge of the screen .
-cursor_offset -= 2* MAX_COLS ;
-// Return the updated cursor position .
-return cursor_offset ;
-}
+
 
 

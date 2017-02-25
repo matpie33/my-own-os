@@ -7,6 +7,7 @@ typedef unsigned short u16;
 typedef 		 short s16;
 typedef unsigned char u8;
 typedef 		 char s8;
+typedef enum {false, true} boolean;
 
 /* makro - podmienia to co przed spacją na to co po spacji - patrz gcc macros*/
 #define low_16(address) (u16)((address) & 0xFFFF) // adres AND 0xFFFF powoduje że zatrzymujemy tylko 2 bajty od prawej, bo nasz adres może mieć więcej niż 2 bajty
