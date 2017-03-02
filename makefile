@@ -11,7 +11,7 @@ CFLAGS = -g -m32 -nostdlib -nostdinc -fno-builtin -fno-stack-protector -nostartf
 		 -Wall -Wextra -Werror
 
 clean:
-	rm *.bin *.o *.img *.tmp **/*.bin **/*.o **/*.tmp **/*.img	
+	rm -f *.bin *.o *.img *.tmp **/*.bin **/*.o **/*.tmp **/*.img	
 		
 	
 run:
