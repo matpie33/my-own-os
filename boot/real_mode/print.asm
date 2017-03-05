@@ -1,4 +1,4 @@
-print_rm:
+print:
 	pusha
 	mov cx,0
 
@@ -11,8 +11,7 @@ print_real_mode:
 	int 0x10
 	add bx, 1
 	add cx, 1
-	cmp cx, 20
-	je end
+
 	jmp print_real_mode
 
 finish: 	;clear the rest of this line

@@ -7,7 +7,8 @@ mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
 
 mov bx, MSG_REAL_MODE ; Announce that we are starting
-call print_rm
+call init_cursor_position
+call print
 ; TODO print string routines should return cursor position
 ; also real mode print moves cursor, protected mode doesn't do it
 
@@ -16,13 +17,15 @@ call switch_to_pm
 jmp $
 
 ; Include our useful , hard - earned routines
-%include "disk/disk_load.asm"
-%include "pm/gdt.asm"
-%include "pm/print_string_pm.asm"
-%include "pm/switch_to_pm.asm"
-%include "pm/clear_screen.asm"
-%include "real_mode/print.asm"
-%include "real_mode/print_hex.asm"
+%include "boot/real_mode/print.asm"
+%include "boot/real_mode/print_hex.asm"
+%include "boot/real_mode/cursor.asm"
+
+%include "boot/disk/disk_load.asm"
+%include "boot/pm/gdt.asm"
+%include "boot/pm/print_string_pm.asm"
+%include "boot/pm/switch_to_pm.asm"
+%include "boot/pm/clear_screen.asm"
 
 [ bits 16]
 ; load_kernel

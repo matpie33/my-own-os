@@ -17,10 +17,10 @@ clean:
 run:
 	make os-image.img
 
-os-image.img: boot/boot_sect.bin kernel.bin
+os-image.img: boot/bootsect.bin kernel.bin
 	cat $^ > $@
 	
-boot/boot_sect.bin:  boot/boot_sect.asm boot/**/*.asm
+boot/bootsect.bin:  boot/bootsect.asm boot/**/*.asm
 	nasm $< -f bin -I "boot/" -o $@
 	
 kernel.bin: kernel/kernel_entry.o ${OBJ}
