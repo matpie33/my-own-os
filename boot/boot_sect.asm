@@ -6,40 +6,10 @@ mov [BOOT_DRIVE], dl ; BIOS stores our boot drive in DL , so it 's
 mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
 
-
-call init_cursor_position
-call set_background_color
-
 mov bx, MSG_REAL_MODE ; Announce that we are starting
-mov cx,0
-
-print_real_mode:
-	mov al, [bx]
-	cmp al,0
-	je finish
-
-	mov ah, 0x0e
-	int 0x10
-	add bx, 1
-	add cx, 1
-	jmp print_real_mode
-
-finish: 	;clear the rest of this line
-	mov al, ''
-	cmp cx,80
-	je end
-
-	mov ah, 0x0e
-	int 0x10
-	add cx,1
-	jmp finish
-
-end:
-	popa
-
+call print_rm
 ; TODO print string routines should return cursor position
 ; also real mode print moves cursor, protected mode doesn't do it
-
 
 call load_kernel
 call switch_to_pm
@@ -52,8 +22,7 @@ jmp $
 %include "pm/switch_to_pm.asm"
 %include "pm/clear_screen.asm"
 %include "real_mode/print.asm"
-%include "real_mode/cursor.asm"
-%include "real_mode/background.asm"
+%include "real_mode/print_hex.asm"
 
 [ bits 16]
 ; load_kernel
