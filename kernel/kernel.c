@@ -5,7 +5,7 @@
 #include "../libc/strings.h"
 
 void start() { 
-
+print("kernel");
 //	clear_screen();
 //	println("hello into my os");
 //	isr_install();
