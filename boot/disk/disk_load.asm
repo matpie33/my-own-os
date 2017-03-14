@@ -15,9 +15,14 @@ disk_load :
 	pop dx ; Restore DX from the stack
 	cmp dh, al ; if AL ( sectors read ) != DH ( sectors expected )
 	jne disk_error ; display error message
+	mov bx, SUCCESS
+	call print
 	ret
 	
 disk_error :
+	mov bx, DISK_ERROR_MSG
+	call print
 	jmp $
 	; Variables
 DISK_ERROR_MSG db "Disk read error!", 0
+SUCCESS db "Successfully read from disk!",0

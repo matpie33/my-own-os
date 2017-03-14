@@ -33,3 +33,5 @@ mov esp, ebp ; at the top of the free space.
 
 call BEGIN_PM
 
+%include "boot/pm/gdt.asm"
+
