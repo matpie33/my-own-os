@@ -5,15 +5,18 @@
 #include "../libc/strings.h"
 
 void start() { 
-println("kernel");
-println("type something");
-//	clear_screen();
+
+	//TODO fill the whole screen and check if it clears it all
+clear_screen();
+println("Successfully landed in 32 bit mode.");
+println("Now you can type anything to start the OS.");
+
 //	println("hello into my os");
-//	isr_install();
-//	asm volatile("sti");
+	isr_install();
+	asm volatile("sti");
 //
 //	init_timer(50);
-//	init_keyboard();
+	init_keyboard();
 //
 //	__asm__ __volatile__("int $2");
 //	__asm__ __volatile__("int $3");

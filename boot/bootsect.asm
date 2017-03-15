@@ -6,12 +6,9 @@ mov [BOOT_DRIVE], dl ; BIOS stores our boot drive in DL , so it 's
 mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
 
-; TODO print string routines should return cursor position
-; also real mode print moves cursor, protected mode doesn't do it
-
+call init_cursor_position
 mov bx, MSG_REAL_MODE
 call print
-call init_cursor_position
 
 [bits 16]
 mov bx, KERNEL_OFFSET   ; Set -up parameters for our disk_load routine , so
@@ -19,10 +16,6 @@ mov dh, 31			; that we load the first 15 sectors ( excluding
 mov dl, [ BOOT_DRIVE ]  ; the boot sector ) from the boot disk ( i.e. our
 mov cl, 0x02
 call disk_load 			; kernel code ) to address KERNEL_OFFSET
-
-mov bx, LOAD
-call print
-
 call KERNEL_OFFSET ; Now jump to the address of our loaded
 
 jmp $ ; Hang.

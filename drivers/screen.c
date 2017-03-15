@@ -1,5 +1,6 @@
 #include "screen.h"
 #include "../libc/mem.h"
+#include "../libc/strings.h"
 #include "../cpu/port_read_write.h"
 
 
@@ -139,14 +140,21 @@ void println(char * message){
 
 void clear_screen () {
 	
-int row = 0;
-int col = 0;
-	for (row =0; row < MAX_ROWS ; row ++) {
+int cursorOffset = get_cursor()/2;
+int row = cursorOffset/80;
+int col = cursorOffset-80*row;
+int rowUn = row;
+int colUn = col;
+	for (; row <MAX_ROWS  ; row ++) {
 		for (col =0; col < MAX_COLS ; col ++) {
+			if (row == MAX_ROWS-1 && col == MAX_COLS-1){
+				break;
+			}
 			print_char (' ', col,row , 0x0f );
 		}
 	}
-set_cursor ( get_screen_offset (0, 0));
+set_cursor ( get_screen_offset (rowUn, colUn ));
+
 }
 
 void print_backspace() {
