@@ -6,3 +6,4 @@ bochsout.txt
 .project
 *.img
 .settings/language.settings.xml
+.settings
