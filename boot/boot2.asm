@@ -7,44 +7,188 @@ mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
 
 
- 
+[bits 16] ; VESA setting mode code
 
+; read information
+push es						; some VESA BIOSes destroy ES, or so I read
+mov ax, 0x4F00				; get VBE BIOS info
+mov di, vbe_info_block
+int 0x10
+pop es
+	
+; check if success
+cmp ax, 0x4F
+jne failed_call_vesa
+mov bx, MSG_SUCCESS_VESA
+call print
 
+; read version
+mov dx, vbe_info_block.version
+call print_hex
 
+; read supported modes
+mov ax, word [vbe_info_block.video_modes]
+mov [offset], ax
+mov ax, word [vbe_info_block.video_modes+2]
+mov [segments], ax
 
+mov ax, [segments]
+mov fs, ax
+mov si, [offset]
 
-[bits 16]
-; VESA setting mode code
+find_mode:
 
-
-
-push es					; some VESA BIOSes destroy ES, or so I read
-	mov ax, 0x4F00				; get VBE BIOS info
-	mov di, vbe_info_block
+	mov dx, [fs:si]
+	add si, 2
+	mov [offset], si
+	mov [mode], dx
+	mov ax, 0
+	mov fs, ax
+	
+	mov bx, MSG_READ_MODE
+	call print
+	
+	cmp [mode], word 0xFFFF
+	je	failed_mode
+	
+	push es 
+	mov ax, 0x4F01
+	mov cx, [mode]
+	mov di, mode_info_block
 	int 0x10
 	pop es
+	
+	cmp ax, 0x004F
+	jne failed_call_vesa
+	
+	mov bx, MSG_SUCCESS_VESA
+	call print
+	
+	mov ax, [width]
+;	cmp ax, [mode_info_block.width]
+;	jne next_mode
+	
+	mov bx, [mode_info_block.height]
+	call print
+	
+	mov bx, 'X'
+	call print
+	
+	mov ax, [height]
+;	cmp ax, [mode_info_block.height]
+;	jne next_mode
+	
+	mov bx, [height]
+	call print
+	
+	mov al, [bpp]
+;	cmp ax, [mode_info_block.bpp]
+;	jne next_mode
+	
+	jmp next_mode
 
-mov dx, vbe_info_block.video_memory
-call print
+pop es
 
 jmp $
 
+failed_call_vesa:
+	mov bx, MSG_FAIL_VESA
+	call print
+	jmp $
+
+failed_mode:
+	mov bx, MSG_FAIL_MODE
+	call print 
+	jmp $
+	
+next_mode:
+	mov ax, [segments]
+	mov fs, ax
+	mov si, [offset]
+	jmp find_mode
 
 %include "boot/real_mode/print.asm"
 %include "boot/real_mode/print_hex.asm"
 %include "boot/real_mode/cursor.asm"
+%include "boot/real_mode/hex_to_dec.asm"
 
 %include "boot/disk/disk_load.asm"
 %include "boot/pm/gdt.asm"
 %include "boot/pm/print_string_pm.asm"
 %include "boot/pm/clear_screen.asm"
 
+
 MSG_REAL_MODE db "Started in 16-bit Real Mode", 0
 MSG_WAIT db "Now waiting...", 0
 MSG_PROT_MODE db "Successfully landed in 32- bit Protected Mode.", 0
 MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
 BOOT_DRIVE db 0
+
+; VESA
+
+MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
+MSG_FAIL_VESA db "Failed to read vesa information", 0
+MSG_FAIL_MODE db "Failed to read mode - it ended in FFFF", 0
+
+MSG_READ_MODE db "Reading mode...", 0
+
 vbe_info_block:
-	.signature		db "VBE2"	; indicate support for VBE 2.0+
-	.table_data:	times 512-4 db 0	; reserve space for the table below
+	.signature					db "VBE2"	; indicate support for VBE 2.0+
+	.version					dw 0
+	.cem						dd 0
+	.capabilities 				dd 0
+	.video_modes				dd 0
+	.video_memory				dw 0
+	.software_rev				dw 0
+	.vendor						dd 0
+	.product_name				dd 0
+	.product_rev				dd 0
+	.reserved					times 222 db 0
+	.cem_data					times 256 db 0
+	
+mode_info_block:
+	.attributes					dw 0
+	.window_a					db 0
+	.window_b					db 0
+	.granularity				dw 0
+	.window_size				dw 0
+	.segment_a					dw 0
+	.segment_b					dw 0
+	.win_func_ptr			 	dd 0
+	.pitch						dw 0
+	.width						dw 0
+	.height						dw 0
+	.w_char						db 0
+	.y_char						db 0
+	.planes						db 0
+	.bpp						db 0
+	.banks						db 0
+	.memory_model				db 0
+	.bank_size					db 0
+	.image_pages				db 0
+	.reserved0					db 0
+	
+	.red_mask					db 0
+	.red_position				db 0
+	.green_mask					db 0
+	.green_position				db 0
+	.blue_mask					db 0
+	.blue_position				db 0
+	.reserved_mask				db 0
+	.reserved_position			db 0
+	.direct_color_attributes	db 0
+	
+	.framebuffer				dd 0					
+	.off_screen_mem_off			dd 0
+	.off_screen_mem_size		dw 0	
+	.reserved1					times 206 db 0
+	
+	
+segments dw 0
+offset  dw 0
+mode 	dw 0
+
+width dw 0
+height dw 0
+bpp db 0
 
