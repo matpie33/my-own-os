@@ -26,7 +26,7 @@ call disk_load 			; kernel code ) to address KERNEL_OFFSET
 ; This is where we arrive after  switching to and initialising protected mode.
 
 mov bx, LOAD
-call print
+call println
 
 call KERNEL_OFFSET ; Now jump to the address of our loaded
 mov bx, LOADED

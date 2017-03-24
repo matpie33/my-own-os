@@ -20,11 +20,13 @@ pop es
 cmp ax, 0x4F
 jne failed_call_vesa
 mov bx, MSG_SUCCESS_VESA
-call print
+call println
 
 ; read version
 mov dx, vbe_info_block.version
 call print_hex
+call new_line
+
 
 ; read supported modes
 mov ax, word [vbe_info_block.video_modes]
@@ -36,6 +38,9 @@ mov ax, [segments]
 mov fs, ax
 mov si, [offset]
 
+mov bx, MSG_READ_MODE
+call println
+
 find_mode:
 
 	mov dx, [fs:si]
@@ -45,8 +50,6 @@ find_mode:
 	mov ax, 0
 	mov fs, ax
 	
-	mov bx, MSG_READ_MODE
-	call print
 	
 	cmp [mode], word 0xFFFF
 	je	failed_mode
@@ -61,29 +64,37 @@ find_mode:
 	cmp ax, 0x004F
 	jne failed_call_vesa
 	
-	mov bx, MSG_SUCCESS_VESA
-	call print
 	
 	mov ax, [width]
-;	cmp ax, [mode_info_block.width]
-;	jne next_mode
+	cmp ax, [mode_info_block.width]
 	
-	mov bx, [mode_info_block.height]
+	mov ax, [mode_info_block.height]
+	call hex_to_dec
+	
+	mov bx, MESSAGE
 	call print
 	
-	mov bx, 'X'
+	mov ax, [mode_info_block.width]
+	call hex_to_dec
+	
+	mov bx, MESSAGE
 	call print
+	
+	mov ax, [mode_info_block.bpp]
+	call hex_to_dec
+	
+	mov bx, SPACE
+	call print
+	
+	jne next_mode
 	
 	mov ax, [height]
-;	cmp ax, [mode_info_block.height]
-;	jne next_mode
+	cmp ax, [mode_info_block.height]
 	
-	mov bx, [height]
-	call print
 	
 	mov al, [bpp]
-;	cmp ax, [mode_info_block.bpp]
-;	jne next_mode
+	cmp ax, [mode_info_block.bpp]
+	jne next_mode
 	
 	jmp next_mode
 
@@ -92,11 +103,13 @@ pop es
 jmp $
 
 failed_call_vesa:
+	call new_line	
 	mov bx, MSG_FAIL_VESA
 	call print
 	jmp $
 
 failed_mode:
+	call new_line
 	mov bx, MSG_FAIL_MODE
 	call print 
 	jmp $
@@ -124,13 +137,16 @@ MSG_PROT_MODE db "Successfully landed in 32- bit Protected Mode.", 0
 MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
 BOOT_DRIVE db 0
 
+
+MESSAGE db "X",0
+SPACE db "   ", 0
 ; VESA
 
 MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
 MSG_FAIL_VESA db "Failed to read vesa information", 0
 MSG_FAIL_MODE db "Failed to read mode - it ended in FFFF", 0
 
-MSG_READ_MODE db "Reading mode...", 0
+MSG_READ_MODE db "Available video modes in structure: width X height X bits per pixel:", 0
 
 vbe_info_block:
 	.signature					db "VBE2"	; indicate support for VBE 2.0+
@@ -188,7 +204,8 @@ segments dw 0
 offset  dw 0
 mode 	dw 0
 
-width dw 0
-height dw 0
+width dw 700
+height dw 600
 bpp db 0
+
 
