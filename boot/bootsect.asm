@@ -40,7 +40,7 @@ MSG_REAL_MODE db "Started in 16-bit Real Mode", 0
 MSG_WAIT db "Now waiting...", 0
 MSG_PROT_MODE db "Successfully landed in 32- bit Protected Mode.", 0
 MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
-LOAD db "gonna load now", 0
+LOAD db "Switching to second bootloader.", 0
 LOADED db "loaded already",0
 ; Bootsector padding
 times 510-($-$$) db 0

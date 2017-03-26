@@ -9,116 +9,16 @@ mov sp, bp
 
 [bits 16] ; VESA setting mode code
 
-; read information
-push es						; some VESA BIOSes destroy ES, or so I read
-mov ax, 0x4F00				; get VBE BIOS info
-mov di, vbe_info_block
-int 0x10
-pop es
-	
-; check if success
-cmp ax, 0x4F
-jne failed_call_vesa
-mov bx, MSG_SUCCESS_VESA
+mov ax, bpp
+call hex_to_dec
+
+mov bx, MSG_SEARCHING_FOR_VIDEO_MODE
 call println
 
-; read version
-mov dx, vbe_info_block.version
-call print_hex
-call new_line
+call search_video_mode
 
-
-; read supported modes
-mov ax, word [vbe_info_block.video_modes]
-mov [offset], ax
-mov ax, word [vbe_info_block.video_modes+2]
-mov [segments], ax
-
-mov ax, [segments]
-mov fs, ax
-mov si, [offset]
-
-mov bx, MSG_READ_MODE
-call println
-
-find_mode:
-
-	mov dx, [fs:si]
-	add si, 2
-	mov [offset], si
-	mov [mode], dx
-	mov ax, 0
-	mov fs, ax
-	
-	
-	cmp [mode], word 0xFFFF
-	je	failed_mode
-	
-	push es 
-	mov ax, 0x4F01
-	mov cx, [mode]
-	mov di, mode_info_block
-	int 0x10
-	pop es
-	
-	cmp ax, 0x004F
-	jne failed_call_vesa
-	
-	
-	mov ax, [width]
-	cmp ax, [mode_info_block.width]
-	
-	mov ax, [mode_info_block.height]
-	call hex_to_dec
-	
-	mov bx, MESSAGE
-	call print
-	
-	mov ax, [mode_info_block.width]
-	call hex_to_dec
-	
-	mov bx, MESSAGE
-	call print
-	
-	mov ax, [mode_info_block.bpp]
-	call hex_to_dec
-	
-	mov bx, SPACE
-	call print
-	
-	jne next_mode
-	
-	mov ax, [height]
-	cmp ax, [mode_info_block.height]
-	
-	
-	mov al, [bpp]
-	cmp ax, [mode_info_block.bpp]
-	jne next_mode
-	
-	jmp next_mode
-
-pop es
 
 jmp $
-
-failed_call_vesa:
-	call new_line	
-	mov bx, MSG_FAIL_VESA
-	call print
-	jmp $
-
-failed_mode:
-	call new_line
-	mov bx, MSG_FAIL_MODE
-	call print 
-	jmp $
-	
-next_mode:
-	mov ax, [segments]
-	mov fs, ax
-	mov si, [offset]
-	jmp find_mode
 
 %include "boot/real_mode/print.asm"
 %include "boot/real_mode/print_hex.asm"
@@ -129,8 +29,9 @@ next_mode:
 %include "boot/pm/gdt.asm"
 %include "boot/pm/print_string_pm.asm"
 %include "boot/pm/clear_screen.asm"
+%include "boot/vesa/vesa.asm"
 
-
+MSG_SEARCHING_FOR_VIDEO_MODE db "Searching for proper video mode.",0
 MSG_REAL_MODE db "Started in 16-bit Real Mode", 0
 MSG_WAIT db "Now waiting...", 0
 MSG_PROT_MODE db "Successfully landed in 32- bit Protected Mode.", 0
@@ -138,74 +39,5 @@ MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
 BOOT_DRIVE db 0
 
 
-MESSAGE db "X",0
-SPACE db "   ", 0
-; VESA
-
-MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
-MSG_FAIL_VESA db "Failed to read vesa information", 0
-MSG_FAIL_MODE db "Failed to read mode - it ended in FFFF", 0
-
-MSG_READ_MODE db "Available video modes in structure: width X height X bits per pixel:", 0
-
-vbe_info_block:
-	.signature					db "VBE2"	; indicate support for VBE 2.0+
-	.version					dw 0
-	.cem						dd 0
-	.capabilities 				dd 0
-	.video_modes				dd 0
-	.video_memory				dw 0
-	.software_rev				dw 0
-	.vendor						dd 0
-	.product_name				dd 0
-	.product_rev				dd 0
-	.reserved					times 222 db 0
-	.cem_data					times 256 db 0
-	
-mode_info_block:
-	.attributes					dw 0
-	.window_a					db 0
-	.window_b					db 0
-	.granularity				dw 0
-	.window_size				dw 0
-	.segment_a					dw 0
-	.segment_b					dw 0
-	.win_func_ptr			 	dd 0
-	.pitch						dw 0
-	.width						dw 0
-	.height						dw 0
-	.w_char						db 0
-	.y_char						db 0
-	.planes						db 0
-	.bpp						db 0
-	.banks						db 0
-	.memory_model				db 0
-	.bank_size					db 0
-	.image_pages				db 0
-	.reserved0					db 0
-	
-	.red_mask					db 0
-	.red_position				db 0
-	.green_mask					db 0
-	.green_position				db 0
-	.blue_mask					db 0
-	.blue_position				db 0
-	.reserved_mask				db 0
-	.reserved_position			db 0
-	.direct_color_attributes	db 0
-	
-	.framebuffer				dd 0					
-	.off_screen_mem_off			dd 0
-	.off_screen_mem_size		dw 0	
-	.reserved1					times 206 db 0
-	
-	
-segments dw 0
-offset  dw 0
-mode 	dw 0
-
-width dw 700
-height dw 600
-bpp db 0
 
 
