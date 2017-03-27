@@ -24,6 +24,8 @@ mov cl, 0x02
 call disk_load 			; kernel code ) to address KERNEL_OFFSET
 
 ; This is where we arrive after  switching to and initialising protected mode.
+mov bx, MSG_REAL_MODE
+call println
 
 mov bx, LOAD
 call println

@@ -1,7 +1,6 @@
-width equ 800
-height equ 600
-bpp equ 3856
-
+width equ 1280
+height equ 720
+bpp equ 14624
 
 search_video_mode:
 
@@ -19,12 +18,6 @@ cmp ax, 0x4F
 jne failed_call_vesa
 mov bx, MSG_SUCCESS_VESA
 call println
-
-; read version
-mov dx, vbe_info_block.version
-call print_hex
-call new_line
-
 
 ; read supported modes
 mov ax, word [vbe_info_block.video_modes]
@@ -48,9 +41,10 @@ find_mode:
 	mov ax, 0
 	mov fs, ax
 	
-	
 	cmp [mode], word 0xFFFF
 	je	failed_mode
+	
+	call display_current_mode
 	
 	push es 
 	mov ax, 0x4F01
@@ -62,6 +56,30 @@ find_mode:
 	cmp ax, 0x004F
 	jne failed_call_vesa
 	
+	mov ax, width
+	cmp ax, [mode_info_block.width]
+	jne next_mode
+	mov bx, MSG_WIDTH_OK
+	call println
+	
+	mov ax, [mode_info_block.height]
+	cmp ax, height
+	jne next_mode
+	mov bx, MSG_HEIGHT_OK
+	call println
+	
+	mov ax, bpp
+	cmp ax, [mode_info_block.bpp]
+	jne next_mode
+	
+	mov bx, MSG_FOUND_MODE
+	call println
+
+pop es	
+
+jmp $
+
+display_current_mode:
 	mov ax, [mode_info_block.height]
 	call hex_to_dec
 	
@@ -79,35 +97,7 @@ find_mode:
 	
 	mov bx, MODE_SEPARATOR
 	call print
-	
-	mov ax, [width]
-	cmp ax, [mode_info_block.width]
-	jne next_mode
-	mov bx, MSG_WIDTH_OK
-	call println
-	
-	
-	mov ax, [mode_info_block.height]
-	cmp ax, [height]
-	jne next_mode
-	mov bx, MSG_HEIGHT_OK
-	call println
-	
-	
-	
-	mov ax, [height]
-	cmp ax, [mode_info_block.height]
-	
-	mov al, [bpp]
-	cmp ax, [mode_info_block.bpp]
-	jne next_mode
-	
-	mov bx, MSG_FOUND_MODE
-	call println
-
-pop es
-
-jmp $
+	ret
 
 failed_call_vesa:
 	call new_line	

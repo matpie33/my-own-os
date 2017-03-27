@@ -9,14 +9,10 @@ mov sp, bp
 
 [bits 16] ; VESA setting mode code
 
-mov ax, bpp
-call hex_to_dec
-
 mov bx, MSG_SEARCHING_FOR_VIDEO_MODE
 call println
 
 call search_video_mode
-
 
 jmp $
 
