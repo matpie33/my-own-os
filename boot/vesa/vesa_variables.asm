@@ -1,10 +1,11 @@
 X db " X ",0
+COMMA db ", ", 0
 MODE_SEPARATOR db "; ", 0
 ; VESA
 
-MSG_WIDTH_OK db "Width is ok", 0
-MSG_HEIGHT_OK db "Height ok", 0
-MSG_BPP_OK db "bpp ok", 0
+MSG_WIDTH_OK db "Width matched", 0
+MSG_HEIGHT_OK db "Height matched", 0
+MSG_BPP_OK db "Bits per pixel matched.", 0
 MSG_FOUND_MODE db "Successfully found desired mode", 0
 MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
 MSG_FAIL_VESA db "Failed to read vesa information", 0
