@@ -1,4 +1,4 @@
-X db "X",0
+X db " X ",0
 MODE_SEPARATOR db "; ", 0
 ; VESA
 
@@ -10,7 +10,7 @@ MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
 MSG_FAIL_VESA db "Failed to read vesa information", 0
 MSG_FAIL_MODE db "Failed to read mode - it ended in FFFF", 0
 
-MSG_READ_MODE db "Available video modes in structure: height X width X bits per pixel:", 0
+MSG_READ_MODE db "Available video modes in structure: width X height X bits per pixel:", 0
 
 vbe_info_block:
 	.signature					db "VBE2"	; indicate support for VBE 2.0+

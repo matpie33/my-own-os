@@ -44,7 +44,7 @@ find_mode:
 	cmp [mode], word 0xFFFF
 	je	failed_mode
 	
-	call display_current_mode
+	
 	
 	push es 
 	mov ax, 0x4F01
@@ -55,6 +55,8 @@ find_mode:
 	
 	cmp ax, 0x004F
 	jne failed_call_vesa
+	
+	call display_current_mode
 	
 	mov ax, width
 	cmp ax, [mode_info_block.width]
@@ -69,6 +71,7 @@ find_mode:
 	call println
 	
 	mov ax, bpp
+	
 	cmp ax, [mode_info_block.bpp]
 	jne next_mode
 	
@@ -80,19 +83,22 @@ pop es
 jmp $
 
 display_current_mode:
+
+	mov ax, [mode_info_block.width]
+	call hex_to_dec
+	
+	mov bx, X
+	call print
+
 	mov ax, [mode_info_block.height]
 	call hex_to_dec
 	
 	mov bx, X
 	call print
 	
-	mov ax, [mode_info_block.width]
-	call hex_to_dec
-	
-	mov bx, X
-	call print
-	
-	mov ax, [mode_info_block.bpp]
+	mov cx, [mode_info_block.bpp]
+	and cx, 11111111b
+	mov ax, cx
 	call hex_to_dec
 	
 	mov bx, MODE_SEPARATOR
