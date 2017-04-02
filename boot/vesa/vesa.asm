@@ -40,9 +40,6 @@ push cx
 find_mode:
 
 	mov dx, [fs:si]
-	call print_hex
-	mov bx, X
-	call print
 	add si, 2
 	mov [offset], si
 	mov [mode], dx
@@ -156,14 +153,23 @@ failed_mode:
 	call print 
 	
 highest_mode:
+	call new_line
+	mov bx, MSG_BEST_MODE
+	call print
 	mov ax, [best_video_mode.width]
 	call hex_to_dec
+	
+	mov bx, X
+	call print
+	
 	mov ax, [best_video_mode.height]
 	call hex_to_dec
+	
+	mov bx, X
+	call print
+	
 	mov ax, [best_video_mode.bpp]
 	call hex_to_dec
-	mov dx, [best_video_mode.mode]
-	call print_hex
 	jmp $
 	
 next_mode:

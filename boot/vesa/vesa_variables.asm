@@ -9,7 +9,8 @@ MSG_BPP_OK db "Bits per pixel matched.", 0
 MSG_FOUND_MODE db "Successfully found desired mode", 0
 MSG_SUCCESS_VESA db "Successfully performed call to VESA", 0
 MSG_FAIL_VESA db "Failed to read vesa information", 0
-MSG_FAIL_MODE db "Failed to read mode - it ended in FFFF", 0
+MSG_FAIL_MODE db "VESA list ended.", 0
+MSG_BEST_MODE db "Best found mode is: ",0
 
 MSG_READ_MODE db "Available video modes in structure: width X height X bits per pixel:", 0
 
