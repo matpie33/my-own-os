@@ -64,6 +64,11 @@ mode_info_block:
 	.off_screen_mem_size		dw 0	
 	.reserved1					times 206 db 0
 	
+best_video_mode:
+	.bpp db 0
+	.height dw 0
+	.width dw 0	
+	.mode dw 0
 	
 segments dw 0
 offset  dw 0

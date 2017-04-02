@@ -40,6 +40,9 @@ push cx
 find_mode:
 
 	mov dx, [fs:si]
+	call print_hex
+	mov bx, X
+	call print
 	add si, 2
 	mov [offset], si
 	mov [mode], dx
@@ -68,36 +71,39 @@ find_mode:
 	push cx
 
 	check_mode:
-	
-		mov ax, width
-		cmp ax, [mode_info_block.width]
-		jne next_mode
+		mov cx, 0; flag - 0 it's not better than currently chosen mode, 1 otherwise
+		mov bx, [best_video_mode.width]
+		cmp bx, [mode_info_block.width]
+		jl save_and_continue
+		je compare_height
+		jmp next_mode
 		
-		mov bx, MSG_WIDTH_OK
-		call print
-		mov bx, COMMA
-		call print
+	compare_height:	
+		mov bx, [best_video_mode.height]
+		cmp bx, [mode_info_block.height]
+		jl save_and_continue
+		je compare_bpp
+		jmp next_mode
 		
-		mov ax, [mode_info_block.height]
-		cmp ax, height
-		jne new_line_and_next_mode
+	compare_bpp:
+		mov dx, [best_video_mode.bpp]
+		mov ax, [mode_info_block.bpp]
+		and ax, 11111111b
+		cmp dx, ax
+		jl save_and_continue
+		jmp next_mode
 		
-		mov bx, MSG_HEIGHT_OK
-		call print
-		mov bx, COMMA
-		call print
-		
-		mov ax, bpp	
-		mov cx, [mode_info_block.bpp]
-		and cx, 11111111b
-		cmp ax, cx
-		jne new_line_and_next_mode
-		
-		mov bx, MSG_BPP_OK
-		call println
-		
-		mov bx, MSG_FOUND_MODE
-		call println
+	save_and_continue:
+		mov bx, [mode_info_block.width]
+		mov [best_video_mode.width], bx
+		mov bx, [mode_info_block.height]
+		mov [best_video_mode.height], bx
+		mov bx, [mode_info_block.bpp]
+		and bx, 11111111b
+		mov [best_video_mode.bpp], bx
+		mov bx, [mode]
+		mov [best_video_mode.mode], bx
+		jmp next_mode
 
 pop es	
 
@@ -148,6 +154,16 @@ failed_mode:
 	call new_line
 	mov bx, MSG_FAIL_MODE
 	call print 
+	
+highest_mode:
+	mov ax, [best_video_mode.width]
+	call hex_to_dec
+	mov ax, [best_video_mode.height]
+	call hex_to_dec
+	mov ax, [best_video_mode.bpp]
+	call hex_to_dec
+	mov dx, [best_video_mode.mode]
+	call print_hex
 	jmp $
 	
 next_mode:
@@ -155,6 +171,5 @@ next_mode:
 	mov fs, ax
 	mov si, [offset]
 	jmp find_mode
-
 
 %include "boot/vesa/vesa_variables.asm"
