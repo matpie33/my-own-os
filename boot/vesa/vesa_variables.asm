@@ -3,6 +3,7 @@ COMMA db ", ", 0
 MODE_SEPARATOR db "; ", 0
 ; VESA
 
+MSG_SUCCESS_SETTING_MODE db "Successfully set mode", 0
 MSG_WIDTH_OK db "Width matched", 0
 MSG_HEIGHT_OK db "Height matched", 0
 MSG_BPP_OK db "Bits per pixel matched.", 0
@@ -70,6 +71,11 @@ best_video_mode:
 	.height dw 0
 	.width dw 0	
 	.mode dw 0
+	.framebuffer dd 0
+	.bytes_per_line dw 0
+	.bytes_per_pixel dd 0
+	.x_cur_max dw 0
+	.y_cur_max dw 0
 	
 segments dw 0
 offset  dw 0

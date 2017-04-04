@@ -93,13 +93,31 @@ find_mode:
 	save_and_continue:
 		mov bx, [mode_info_block.width]
 		mov [best_video_mode.width], bx
+		
+		shr bx,3
+		dec bx
+		mov [best_video_mode.x_cur_max], bx
+		
 		mov bx, [mode_info_block.height]
 		mov [best_video_mode.height], bx
-		mov bx, [mode_info_block.bpp]
-		and bx, 11111111b
-		mov [best_video_mode.bpp], bx
+		
+		shr bx, 4
+		dec bx
+		mov word [best_video_mode.y_cur_max], ax
+		
+		mov ebx, 0
+		mov bl, [mode_info_block.bpp]
+		mov [best_video_mode.bpp], bl
+		shr ebx, 3
+		mov dword [best_video_mode.bytes_per_pixel], ebx
+		
+		
 		mov bx, [mode]
 		mov [best_video_mode.mode], bx
+		mov ebx, [mode_info_block.framebuffer]
+		mov [best_video_mode.framebuffer], ebx
+		mov bx, [mode_info_block.pitch]
+		mov [best_video_mode.bytes_per_line],bx
 		jmp next_mode
 
 pop es	
@@ -151,6 +169,25 @@ failed_mode:
 	call new_line
 	mov bx, MSG_FAIL_MODE
 	call print 
+
+set_mode:
+
+	push es
+	mov ax, 0x4F02
+	mov bx, [best_video_mode.mode]
+	or bx, 0x4000
+	mov di, 0
+	int 0x10
+	pop es
+	
+	cmp ax, 0x4F
+	jne failed_call_vesa
+	
+	mov bx, MSG_SUCCESS_SETTING_MODE
+	call print
+	
+	clc 
+	ret
 	
 highest_mode:
 	call new_line

@@ -9,6 +9,17 @@ mov sp, bp
 
 [bits 16] ; VESA setting mode code
 
+;; how to multiply? move to bx value, and call mul bx, then ax will be multiplied by ax
+;; result stored in dx together with ax
+mov ax, 45
+mov bx, 10
+mul bx
+
+call print_hex
+mov dx, ax
+call print_hex
+
+
 mov bx, MSG_SEARCHING_FOR_VIDEO_MODE
 call println
 
