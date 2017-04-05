@@ -185,9 +185,10 @@ set_mode:
 	
 	mov bx, MSG_SUCCESS_SETTING_MODE
 	call print
-	
 	clc 
-	ret
+	call continue_l
+	
+	
 	
 highest_mode:
 	call new_line

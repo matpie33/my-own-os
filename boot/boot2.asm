@@ -27,6 +27,9 @@ call search_video_mode
 
 jmp $
 
+continue_l:
+jmp $
+
 %include "boot/real_mode/print.asm"
 %include "boot/real_mode/print_hex.asm"
 %include "boot/real_mode/cursor.asm"
