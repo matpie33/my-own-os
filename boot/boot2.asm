@@ -28,6 +28,13 @@ call search_video_mode
 jmp $
 
 continue_l:
+mov bx, KERNEL_OFFSET   ; Set -up parameters for our disk_load routine , so
+mov dh, 15		; that we load the first 15 sectors ( excluding
+mov dl, [ BOOT_DRIVE ]  ; the boot sector ) from the boot disk ( i.e. our
+mov cl, 0x06 ;which sector we load; this file is starting as sector 2, so we have to set this value as
+			 ;number of 512 bytes sectors this file consists of + 2
+call disk_load 	
+call 0x5000;
 jmp $
 
 %include "boot/real_mode/print.asm"
@@ -47,6 +54,9 @@ MSG_WAIT db "Now waiting...", 0
 MSG_PROT_MODE db "Successfully landed in 32- bit Protected Mode.", 0
 MSG_LOAD_KERNEL db "Loading kernel into memory.", 0
 BOOT_DRIVE db 0
+
+times 2048-($-$$) db 0 ;at this moment this file is 2022 bytes in lenght, so I put 512*4 = 2048, gott
+	;but I should not hardcode it like that
 
 
 

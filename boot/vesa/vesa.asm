@@ -162,29 +162,29 @@ display_current_mode:
 failed_call_vesa:
 	call new_line	
 	mov bx, MSG_FAIL_VESA
-	call print
+	call println
 	jmp $
 
 failed_mode:
 	call new_line
 	mov bx, MSG_FAIL_MODE
-	call print 
+	call println
 
 set_mode:
 
-	push es
-	mov ax, 0x4F02
-	mov bx, [best_video_mode.mode]
-	or bx, 0x4000
-	mov di, 0
-	int 0x10
-	pop es
+	;push es
+	;mov ax, 0x4F02
+	;mov bx, [best_video_mode.mode]
+	;or bx, 0x4000
+	;mov di, 0
+	;int 0x10
+	;pop es
 	
-	cmp ax, 0x4F
-	jne failed_call_vesa
+	;cmp ax, 0x4F
+	;jne failed_call_vesa
 	
 	mov bx, MSG_SUCCESS_SETTING_MODE
-	call print
+	call println
 	clc 
 	call continue_l
 	

@@ -5,14 +5,14 @@
 #include "../libc/strings.h"
 
 void start() { 
-print("kernel");
+	println("kernel is working yo");
 //	clear_screen();
-//	println("hello into my os");
-//	isr_install();
-//	asm volatile("sti");
+	println("hello into my os");
+	isr_install();
+	asm volatile("sti");
 //
 //	init_timer(50);
-//	init_keyboard();
+	init_keyboard();
 //
 //	__asm__ __volatile__("int $2");
 //	__asm__ __volatile__("int $3");

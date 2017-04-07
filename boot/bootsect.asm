@@ -18,12 +18,11 @@ call load2ndStage
 
 load2ndStage:
 mov bx, KERNEL_OFFSET   ; Set -up parameters for our disk_load routine , so
-mov dh, 15		; that we load the first 15 sectors ( excluding
+mov dh, 4		; that we load the first 15 sectors ( excluding
 mov dl, [ BOOT_DRIVE ]  ; the boot sector ) from the boot disk ( i.e. our
 mov cl, 0x02
 call disk_load 			; kernel code ) to address KERNEL_OFFSET
 
-; This is where we arrive after  switching to and initialising protected mode.
 mov bx, MSG_REAL_MODE
 call println
 
@@ -33,8 +32,6 @@ call println
 call KERNEL_OFFSET ; Now jump to the address of our loaded
 mov bx, LOADED
 call print
-; kernel code , assume the brace position ,
-; and cross your fingers. Here we go!
 jmp $ ; Hang.
 ; Global variables
 BOOT_DRIVE db 0

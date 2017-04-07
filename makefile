@@ -21,12 +21,13 @@ os-image.img: boot/bootsect.bin boot/boot2.bin kernel.bin
 	cat $^ > $@
 	
 boot/bootsect.bin:  boot/bootsect.asm boot/**/*.asm
-	nasm $< -f bin -I "boot/" -o $@
+	nasm $< -f bin -I "boot/" -o $@ 
 boot/boot2.bin : boot/boot2.asm boot/**/*.asm
 	nasm $< -f bin -I "boot/" -o $@
 	
 kernel.bin: kernel/kernel_entry.o ${OBJ}
-	${LD} -o $@ -Ttext 0x5000 $^ --oformat binary
+	${LD} -o $@ -Ttext 0x5000 $^ --oformat binary #Ttext means where this code will be put into; its same
+												  #as assembler's org directive
 	
 kernel.elf: kernel/kernel_entry.o ${OBJ}
 	${LD} -o $@ -Ttext 0x5000 $^
