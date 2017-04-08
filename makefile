@@ -17,7 +17,7 @@ clean:
 run:
 	make os-image.img
 
-os-image.img: boot/bootsect.bin boot/boot2.bin kernel.bin
+os-image.img: boot/bootsect.bin kernel.bin
 	cat $^ > $@
 	
 boot/bootsect.bin:  boot/bootsect.asm boot/**/*.asm
@@ -26,11 +26,11 @@ boot/boot2.bin : boot/boot2.asm boot/**/*.asm
 	nasm $< -f bin -I "boot/" -o $@
 	
 kernel.bin: kernel/kernel_entry.o ${OBJ}
-	${LD} -o $@ -Ttext 0x5000 $^ --oformat binary #Ttext means where this code will be put into; its same
+	${LD} -o $@ -Ttext 0x1000 $^ --oformat binary #Ttext means where this code will be put into; its same
 												  #as assembler's org directive
 	
 kernel.elf: kernel/kernel_entry.o ${OBJ}
-	${LD} -o $@ -Ttext 0x5000 $^
+	${LD} -o $@ -Ttext 0x1000 $^
 	
 %.o: %.c ${HEADERS}
 	${CC} ${CFLAGS} -ffreestanding -c $< -o $@
