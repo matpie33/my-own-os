@@ -3,11 +3,14 @@
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 #include "../libc/strings.h"
+#include "../libc/hex_to_string.h"
 
 void start() { 
-	println("kernel is working yo");
+	println("Kernel is working.");
 //	clear_screen();
-	println("hello into my os");
+	println("Welcome to my os.");
+	println("Hex to string: ");
+	hex_to_string(0x25);
 	isr_install();
 	asm volatile("sti");
 //
