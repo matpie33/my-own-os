@@ -1,6 +1,6 @@
 
-C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c)
-HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h)
+C_SOURCES = $(wildcard kernel/*.c drivers/*.c cpu/*.c libc/*.c graphics/*.c)
+HEADERS = $(wildcard kernel/*.h drivers/*.h cpu/*.h libc/*.h graphics/*.h)
 OBJ = ${C_SOURCES:.c=.o cpu/interrupt.o}
 
 CC = /usr/local/i386elfgcc/bin/i386-elf-gcc
@@ -21,10 +21,11 @@ os-image.img: boot/bootsect.bin kernel.bin
 	cat $^ > $@
 	
 boot/bootsect.bin:  boot/bootsect.asm boot/**/*.asm
-	nasm $< -f bin -I "boot/" -o $@
+	nasm $< -f bin -I "boot/" -o $@ 
 	
 kernel.bin: kernel/kernel_entry.o ${OBJ}
-	${LD} -o $@ -Ttext 0x1000 $^ --oformat binary
+	${LD} -o $@ -Ttext 0x1000 $^ --oformat binary #Ttext means where this code will be put into; its same
+												  #as assembler's org directive
 	
 kernel.elf: kernel/kernel_entry.o ${OBJ}
 	${LD} -o $@ -Ttext 0x1000 $^

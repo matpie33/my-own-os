@@ -7,12 +7,13 @@ mov bp, 0x9000 ; Set -up the stack.
 mov sp, bp
 
 call init_cursor_position
-mov bx, MSG_REAL_MODE
-call print
+call load2ndStage
+
 
 [bits 16]
+load2ndStage:
 mov bx, KERNEL_OFFSET   ; Set -up parameters for our disk_load routine , so
-mov dh, 31			; that we load the first 15 sectors ( excluding
+mov dh, 20		; that we load the first 15 sectors ( excluding
 mov dl, [ BOOT_DRIVE ]  ; the boot sector ) from the boot disk ( i.e. our
 mov cl, 0x02
 call disk_load 			; kernel code ) to address KERNEL_OFFSET
@@ -24,6 +25,8 @@ jmp $ ; Hang.
 %include "boot/real_mode/print_hex.asm"
 %include "boot/disk/disk_load.asm"
 %include "boot/real_mode/cursor.asm"
+
+
 
 BOOT_DRIVE db 0
 MSG_REAL_MODE db "Started in 16-bit Real Mode", 0
