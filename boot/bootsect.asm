@@ -1,6 +1,6 @@
 [org 0x7c00]
-KERNEL_OFFSET equ 0x1000 ; This is the memory offset to which we will load our kernel
-mov [BOOT_DRIVE], dl ; BIOS stores our boot drive in DL , so it 's
+KERNEL_OFFSET equ 0x1000 ;This is the memory offset to which we will load our kernel
+mov [BOOT_DRIVE], dl ;BIOS stores our boot drive in DL , so it 's
 ; best to remember this for later.
 
 mov bp, 0x9000 ; Set -up the stack.
@@ -8,7 +8,6 @@ mov sp, bp
 
 call init_cursor_position
 call load2ndStage
-
 
 [bits 16]
 load2ndStage:
@@ -22,11 +21,8 @@ call KERNEL_OFFSET ; Now jump to the address of our loaded
 jmp $ ; Hang.
 
 %include "boot/real_mode/print.asm"
-%include "boot/real_mode/print_hex.asm"
 %include "boot/disk/disk_load.asm"
 %include "boot/real_mode/cursor.asm"
-
-
 
 BOOT_DRIVE db 0
 MSG_REAL_MODE db "Started in 16-bit Real Mode", 0

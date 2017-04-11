@@ -33,3 +33,5 @@ sector_error:
 DISK_ERROR_MSG db "Disk read error!", 0
 SUCCESS db "Successfully read from disk!",0
 SECTOR_ERROR_MSG db "Sectors error", 0
+
+%include "boot/real_mode/print_hex.asm"

@@ -2,6 +2,7 @@ X db " X ",0
 COMMA db ", ", 0
 MODE_SEPARATOR db "; ", 0
 ; VESA
+global best_video_mode
 
 MSG_SUCCESS_SETTING_MODE db "Successfully set mode", 0
 MSG_WIDTH_OK db "Width matched", 0
@@ -18,7 +19,7 @@ MSG_READ_MODE db "Available video modes in structure: width X height X bits per 
 vbe_info_block:
 	.signature					db "VBE2"	; indicate support for VBE 2.0+
 	.version					dw 0
-	.cem						dd 0
+	.oem						dd 0
 	.capabilities 				dd 0
 	.video_modes				dd 0
 	.video_memory				dw 0
@@ -27,7 +28,7 @@ vbe_info_block:
 	.product_name				dd 0
 	.product_rev				dd 0
 	.reserved					times 222 db 0
-	.cem_data					times 256 db 0
+	.oem_data					times 256 db 0
 	
 mode_info_block:
 	.attributes					dw 0

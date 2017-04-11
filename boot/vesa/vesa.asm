@@ -214,3 +214,4 @@ next_mode:
 	jmp find_mode
 
 %include "boot/vesa/vesa_variables.asm"
+%include "boot/real_mode/hex_to_dec.asm"
