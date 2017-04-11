@@ -1,23 +1,22 @@
 #include "../cpu/isr.h"
 #include "../cpu/timer.h"
-#include "../cpu/types.h"
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 #include "../libc/strings.h"
+<<<<<<< Updated upstream
+#include "../libc/hex_to_string.h"
+=======
 #include "../libc/function.h"
 #include "../libc/hex_to_string.h"
-#include "../graphics/draw_pixel.h"
+#include "kernel.h"
+>>>>>>> Stashed changes
 
 void start() { 
-//	println("Kernel is working.");
+	println("Kernel is working.");
 //	clear_screen();
-//	println("Welcome to my os.");
-
-	int i;
-	for (i=0; i<700; i++){
-		put_pixel(i,2,0x00FFFFFF);
-	}
-
+	println("Welcome to my os.");
+	println("Hex to string: ");
+	hex_to_string(0x25);
 	isr_install();
 	asm volatile("sti");
 //
@@ -27,6 +26,12 @@ void start() {
 //	__asm__ __volatile__("int $2");
 //	__asm__ __volatile__("int $3");
 }        
+
+void test_method(registers_t regs){
+	UNUSED(regs);
+	// TODO implement hex to string method
+	hex_to_string(best_video_mode.y_cur_max);
+}
 
 void user_input(char *input) {
     if (strcmp(input, "END") == 0) {

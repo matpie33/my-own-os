@@ -172,20 +172,17 @@ failed_mode:
 
 set_mode:
 
-	;push es
-	;mov ax, 0x4F02
-	;mov bx, [best_video_mode.mode]
-	;or bx, 0x4000
-	;mov di, 0
-	;int 0x10
-	;pop es
+	push es
+	mov ax, 0x4F02
+	mov bx, [best_video_mode.mode]
+	or bx, 0x4000
+	mov di, 0
+	int 0x10
+	pop es
 	
-	;cmp ax, 0x4F
-	;jne failed_call_vesa
-	
-	mov bx, MSG_SUCCESS_SETTING_MODE
-	call println
-	clc 
+	cmp ax, 0x4F
+	jne failed_call_vesa
+	clc	
 	call continue_l
 	
 	

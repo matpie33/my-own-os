@@ -15,7 +15,14 @@ call switch_to_pm
 
 [bits 32]
 BEGIN_PM:
+<<<<<<< Updated upstream
+=======
+call test_method
 
+>>>>>>> Stashed changes
+mov edx, VIDEO_MEMORY+2*80
+mov ebx, 0x35
+call print_string_pm
 call start
 jmp $
 
@@ -28,3 +35,4 @@ jmp $
 %include "boot/pm/print_string_pm.asm"
 
 MSG_SEARCHING_FOR_VIDEO_MODE db "Searching for proper video mode.",0
+widthnr2 db 0
