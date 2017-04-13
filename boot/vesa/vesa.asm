@@ -40,6 +40,7 @@ push cx
 find_mode:
 
 	mov dx, [fs:si]
+	call print_hex
 	add si, 2
 	mov [offset], si
 	mov [mode], dx
@@ -107,7 +108,7 @@ find_mode:
 		
 		mov ebx, 0
 		mov bl, [mode_info_block.bpp]
-		mov [best_video_mode.bpp], bl
+		mov byte [best_video_mode.bpp], bl
 		shr ebx, 3
 		mov dword [best_video_mode.bytes_per_pixel], ebx
 		
@@ -115,9 +116,9 @@ find_mode:
 		mov bx, [mode]
 		mov [best_video_mode.mode], bx
 		mov ebx, [mode_info_block.framebuffer]
-		mov [best_video_mode.framebuffer], ebx
+		mov dword[best_video_mode.framebuffer], ebx
 		mov bx, [mode_info_block.pitch]
-		mov [best_video_mode.bytes_per_line],bx
+		mov word [best_video_mode.bytes_per_line],bx
 		jmp next_mode
 
 pop es	
@@ -171,7 +172,6 @@ failed_mode:
 	call println
 
 set_mode:
-
 	push es
 	mov ax, 0x4F02
 	mov bx, [best_video_mode.mode]
@@ -184,8 +184,6 @@ set_mode:
 	jne failed_call_vesa
 	clc	
 	call continue_l
-	
-	
 	
 highest_mode:
 	call new_line
@@ -215,3 +213,4 @@ next_mode:
 
 %include "boot/vesa/vesa_variables.asm"
 %include "boot/real_mode/hex_to_dec.asm"
+%include "boot/real_mode/print_hex.asm"

@@ -17,6 +17,8 @@ typedef struct {
 
 extern video_mode best_video_mode;
 
-void put_pixel(int x_pos, int y_pos, int color);
+u32* put_pixel(u32 x_pos, u32 y_pos, u32 color);
+void draw_horizontal_line (u32 x_pos, u32 y_pos, u32 color, int length);
+void draw_vertical_line (u32 x_pos, u32 y_pos, u32 color, int length);
 
 #endif

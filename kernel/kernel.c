@@ -1,5 +1,6 @@
 #include "../cpu/isr.h"
 #include "../cpu/timer.h"
+#include "../cpu/types.h"
 #include "../drivers/screen.h"
 #include "../drivers/keyboard.h"
 #include "../libc/strings.h"
@@ -10,12 +11,11 @@
 void start() { 
 
 //	clear_screen();
-//	println("Welcome to my os.");
+	println("Welcome to my os.");
 
-	int i;
-	for (i=0; i<700; i++){
-		put_pixel(i,2,0x00FFFFFF);
-	}
+
+	draw_horizontal_line(0,0,0x00FFFFFF, 1280);
+
 
 	isr_install();
 	asm volatile("sti");
