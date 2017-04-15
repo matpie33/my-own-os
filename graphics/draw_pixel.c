@@ -11,7 +11,7 @@ u32* put_pixel(u32 x_pos, u32 y_pos, u32 color){
 
 void draw_horizontal_line (u32 x_pos, u32 y_pos, u32 color, int length){
 	u32* video = put_pixel(x_pos, y_pos, color);
-	int i;
+	int i=0;
 	while (i<length){
 		video[i]=color;
 		i++;
@@ -20,9 +20,9 @@ void draw_horizontal_line (u32 x_pos, u32 y_pos, u32 color, int length){
 
 void draw_vertical_line (u32 x_pos, u32 y_pos, u32 color, int length){
 	u32* video = put_pixel(x_pos, y_pos, color);
-	int i;
-	while (i<length*best_video_mode.bytes_per_line){
+	int i=0;
+	while (i<length*best_video_mode.bytes_per_line/4){
 		video[i]=color;
-		i+=best_video_mode.bytes_per_line;
+		i+=best_video_mode.bytes_per_line/4;
 	}
 }
