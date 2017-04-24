@@ -77,12 +77,12 @@ typedef struct {
 	u32 ds; // Data segment selector;
 	u32 edi, esi, ebp, esp, ebx, edx, ecx, eax; // pushed by pusha
 	u32 int_no, err_code; // interrupt number and error code
-	u32 eip, cs, eflags, useresp, ss; // pushed by processor automatically	
+	u32 eip, cs, eflags, useresp, ss; // pushed by processor automatically
 } registers_t;
 
 void isr_install();
-void isr_handler(registers_t r);
-typedef void (*isr_t)(registers_t);
+void isr_handler(registers_t* r);
+typedef void (*isr_t)(registers_t*);
 void register_interrupt_handler(u8 n, isr_t handler);
 
 #endif

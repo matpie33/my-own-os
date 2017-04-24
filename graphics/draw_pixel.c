@@ -11,7 +11,7 @@ u32* put_pixel(u32 x_pos, u32 y_pos, u32 color){
 
 void draw_horizontal_line (u32 x_pos, u32 y_pos, u32 color, int length){
 	u32* video = put_pixel(x_pos, y_pos, color);
-	int i=0;
+	int i=1;
 	while (i<length){
 		video[i]=color;
 		i++;

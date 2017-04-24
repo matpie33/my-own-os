@@ -1,5 +1,4 @@
 #include "timer.h"
-#include "../drivers/screen.h"
 #include "isr.h"
 #include "types.h"
 #include "port_read_write.h"
@@ -13,16 +12,16 @@
 
 u32 tick = 0;
 
-static void timer_callback (registers_t regs){
+static void timer_callback (registers_t* regs){
 	UNUSED(regs);
 	tick++;
 
 	if (tick%100==0){
 		char tick_ascii [256];
 		int_to_ascii(tick/100, tick_ascii);
-		print("Minelo: ");
-		print	(tick_ascii);
-		println(" sekund");
+//		print("Minelo: ");
+//		print	(tick_ascii);
+//		println(" sekund");
 	}
 
 }

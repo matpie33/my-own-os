@@ -1,5 +1,4 @@
 #include "../cpu/types.h"
-#include "../drivers/screen.h"
 #include "../libc/function.h"
 #include "../libc/strings.h"
 
@@ -20,6 +19,6 @@ char * hex_to_string(u32 hexValue){
 	}
 	reverse(result);
 
-	print(result);
+//	print(result);
 	return result;
 }

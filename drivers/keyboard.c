@@ -1,7 +1,8 @@
 #include "keyboard.h"
 #include "../cpu/isr.h"
 #include "../cpu/port_read_write.h"
-#include "screen.h"
+#include "../graphics/draw_string.h"
+#include "../graphics/draw_pixel.h"
 #include "../libc/function.h"
 #include "../libc/strings.h"
 #include "../cpu/port_read_write.h"
@@ -50,7 +51,7 @@ boolean is_letter(u8 scancode){
 			|| (scancode <=0X26 && scancode>=0x1E) || (scancode<=0X32 && scancode >=0x2C);
 }
 
-static void keyboard_callback(registers_t regs) {
+static void keyboard_callback(registers_t* regs) {
 	/* The PIC leaves us the scancode in port 0x60 */
 	    u8 scancode = port_byte_in(0x60);
 
@@ -66,19 +67,19 @@ static void keyboard_callback(registers_t regs) {
 
 	    if (scancode > SC_MAX) return;
 	    if (scancode == BACKSPACE) {
-	        backspace(key_buffer);
-	        print_backspace();
+//	        backspace(key_buffer);
+//	        print_backspace();
 	    }
 	    else if (scancode == ENTER) {
-	        print("\n");
+	    	println("");
 	        user_input(key_buffer); /* kernel-controlled function */
 	        key_buffer[0] = '\0';
 	    }
 	    else if (scancode == TAB){
-	    	print_tab();
+//	    	print_tab();
 	    }
 	    else if (scancode == SHIFT_PRESS){
-	    	//workaround to not print "?"
+	    	//do not display shift key TODO as well as alt caps esc etc.
 	    }
 
 	    else {
@@ -97,10 +98,15 @@ static void keyboard_callback(registers_t regs) {
 	    	else {
 	    		letter = sc_ascii_low[(int)scancode];
 	    	}
-
+	    	if (strlen(key_buffer)>255){
+	    		int i;
+	    		for (i=0; i<256; i++){
+	    			key_buffer[i]='\0';
+	    		}
+	    	}
 	        char str[2] = {letter, '\0'};
 	        append(key_buffer, letter);
-	        print(str);
+	        print_string(str);
 	    }
 	    UNUSED(regs);
 }
@@ -110,4 +116,5 @@ static void keyboard_callback(registers_t regs) {
 void init_keyboard() {
    register_interrupt_handler(IRQ1, keyboard_callback);
 }
+
 
