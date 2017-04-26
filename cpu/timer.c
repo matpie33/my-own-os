@@ -19,9 +19,6 @@ static void timer_callback (registers_t* regs){
 	if (tick%100==0){
 		char tick_ascii [256];
 		int_to_ascii(tick/100, tick_ascii);
-//		print("Minelo: ");
-//		print	(tick_ascii);
-//		println(" sekund");
 	}
 
 }

@@ -19,6 +19,5 @@ char * hex_to_string(u32 hexValue){
 	}
 	reverse(result);
 
-//	print(result);
 	return result;
 }

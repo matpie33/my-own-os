@@ -4,7 +4,6 @@
 #include "../drivers/keyboard.h"
 #include "../libc/strings.h"
 #include "../libc/function.h"
-#include "../libc/hex_to_string.h"
 #include "../graphics/draw_pixel.h"
 #include "../graphics/draw_string.h"
 
@@ -16,9 +15,8 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
-	asm volatile ("int $15");
 
-	print_string("11111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+	print_string("This is a cool OS.");
 }
 
 void user_input(char *input) {

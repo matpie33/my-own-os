@@ -2,7 +2,6 @@
 #include "../cpu/isr.h"
 #include "../cpu/port_read_write.h"
 #include "../graphics/draw_string.h"
-#include "../graphics/draw_pixel.h"
 #include "../libc/function.h"
 #include "../libc/strings.h"
 #include "../cpu/port_read_write.h"
@@ -11,10 +10,13 @@
 #define BACKSPACE 0x0E
 #define TAB 0x0F
 #define ENTER 0x1C
-#define SHIFT_PRESS 0x2A
+#define LEFT_SHIFT 0x2A
+#define RIGHT_SHIFT 0x36
 #define SHIFT_RELEASE 0xAA
 #define CAPSLOCK_PRESS 0x3A
-
+#define ESCAPE 0x01
+#define LEFT_CTRL 0x1d
+#define ALT 0x38
 
 #define SC_MAX 57
 
@@ -42,8 +44,8 @@ const char sc_ascii_low[] = { '?', '?', '1', '2', '3', '4', '5', '6',
 static int shift_on = 0; // 0 is low, 1 is high
 static int capslock_on = 0;
 
-boolean should_use_capital(){
-	return !shift_on != !capslock_on;
+boolean capslock_and_shift_both_on_or_off (){
+	return (shift_on && capslock_on) || (!shift_on && !capslock_on);
 }
 
 boolean is_letter(u8 scancode){
@@ -55,7 +57,8 @@ static void keyboard_callback(registers_t* regs) {
 	/* The PIC leaves us the scancode in port 0x60 */
 	    u8 scancode = port_byte_in(0x60);
 
-	    if (scancode == SHIFT_PRESS){
+	    //TODO implement numpad
+	    if (scancode == LEFT_SHIFT){
 			shift_on=1-shift_on;
 		}
 		else if (scancode == SHIFT_RELEASE){
@@ -67,42 +70,32 @@ static void keyboard_callback(registers_t* regs) {
 
 	    if (scancode > SC_MAX) return;
 	    if (scancode == BACKSPACE) {
-//	        backspace(key_buffer);
-//	        print_backspace();
+	        backspace(key_buffer);
+	        print_backspace();
 	    }
 	    else if (scancode == ENTER) {
 	    	println("");
-	        user_input(key_buffer); /* kernel-controlled function */
+	        user_input(key_buffer);
 	        key_buffer[0] = '\0';
 	    }
 	    else if (scancode == TAB){
-//	    	print_tab();
+	    	print_tab();
 	    }
-	    else if (scancode == SHIFT_PRESS){
-	    	//do not display shift key TODO as well as alt caps esc etc.
+	    else if (scancode == LEFT_SHIFT || scancode == RIGHT_SHIFT || scancode == ESCAPE
+	    		|| scancode == LEFT_CTRL || scancode == ALT){
 	    }
 
 	    else {
 	    	char letter;
-	    	if (capslock_on && !shift_on){
-	    		if (is_letter(scancode)){
-	    			letter = sc_ascii_capital[(int)scancode];
-	    		}
-	    		else{
-	    			letter = sc_ascii_low[(int)scancode];
-	    		}
-	    	}
-	    	else if (shift_on && !capslock_on){
+	    	if ((is_letter(scancode) && !capslock_and_shift_both_on_or_off()) || (!is_letter(scancode) && shift_on)){
 	    		letter = sc_ascii_capital[(int)scancode];
 	    	}
-	    	else {
-	    		letter = sc_ascii_low[(int)scancode];
+	    	else if ((is_letter(scancode) && capslock_and_shift_both_on_or_off())|| (!is_letter(scancode)
+	    			&& !shift_on)){
+	    		letter = sc_ascii_low[(int) scancode];
 	    	}
 	    	if (strlen(key_buffer)>255){
-	    		int i;
-	    		for (i=0; i<256; i++){
-	    			key_buffer[i]='\0';
-	    		}
+				key_buffer[0]='\0';
 	    	}
 	        char str[2] = {letter, '\0'};
 	        append(key_buffer, letter);
