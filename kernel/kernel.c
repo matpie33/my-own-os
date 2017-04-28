@@ -15,8 +15,9 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
+	print_cursor();
 
-	print_string("This is a cool OS.");
+//	print_string("This is a cool OS.");
 }
 
 void user_input(char *input) {

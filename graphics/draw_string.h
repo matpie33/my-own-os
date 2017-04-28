@@ -6,5 +6,6 @@ void print_string(char* string);
 void println (char* a);
 void print_backspace();
 void print_tab ();
+void print_cursor();
 
 #endif
