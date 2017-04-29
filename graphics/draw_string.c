@@ -4,6 +4,10 @@
 
 unsigned int cursor_position_x = 0;
 unsigned int cursor_position_y = 0;
+#define MARGIN_LEFT (unsigned int) 10
+#define MARGIN_UP 10
+#define PADDING_WITHIN_LINES 5
+
 
 const short cursor [16] = {
 		0xf000,
@@ -26,6 +30,10 @@ const short cursor [16] = {
 
 };
 
+void move_cursor_to_next_line(){
+	cursor_position_y +=LETTER_SIZE+PADDING_WITHIN_LINES;
+	cursor_position_x = 0;
+}
 
 void draw_string(char* a, u32 color){
 	unsigned int i=0;
@@ -34,24 +42,23 @@ void draw_string(char* a, u32 color){
 	unsigned int k=0;
 	while (a[k]!=0){
 		if (a[k]=='\n'){
-			cursor_position_y +=8;
-			cursor_position_x = 0;
+			move_cursor_to_next_line();
 			break;
 		}
-		for (i=0; i<8; i++){
+		for (i=0; i<LETTER_SIZE; i++){
 			int row = font8x8_basic[(int)a[k]][i];
-			for (j=0; j<8; j++){
+			for (j=0; j<LETTER_SIZE; j++){
 				u16 bit = (row & (1 << j));
 				if (bit!=0){
-					put_pixel((u32)(cursor_position_x + j), (u32)(cursor_position_y + i), color);
+					put_pixel((u32)(MARGIN_LEFT+cursor_position_x + j), (u32)(MARGIN_UP+cursor_position_y
+							+ i), color);
 				}
 
 			}
 		}
-		cursor_position_x+=8;
-		if (cursor_position_x >= best_video_mode.width){
-			cursor_position_y += 8;
-			cursor_position_x = 0;
+		cursor_position_x+=LETTER_SIZE;
+		if (cursor_position_x >= best_video_mode.width-MARGIN_LEFT-LETTER_SIZE){
+			move_cursor_to_next_line();
 		}
 		k++;
 	}
@@ -67,17 +74,17 @@ void println(char *a){
 }
 
 void print_backspace(){
-	if (cursor_position_x>=8){
-		cursor_position_x-=8;
+	if (cursor_position_x>=LETTER_SIZE){
+		cursor_position_x-=LETTER_SIZE;
 	}
-	else if (cursor_position_y>8 && cursor_position_x==0){
+	else if (cursor_position_y>LETTER_SIZE && cursor_position_x==0){
 		cursor_position_x = 0;
-		cursor_position_y -= 8;
+		cursor_position_y -= LETTER_SIZE;
 	}
-	int i;
-	int j;
-	for (i=0; i<8; i++){
-		for (j=0; j<8; j++){
+	unsigned int i;
+	unsigned int j;
+	for (i=0; i<LETTER_SIZE; i++){
+		for (j=0; j<LETTER_SIZE; j++){
 			put_pixel((u32)(cursor_position_x + j), (u32)(cursor_position_y + i), 0);
 		}
 	}

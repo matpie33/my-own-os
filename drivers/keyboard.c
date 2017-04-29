@@ -18,6 +18,7 @@
 #define ESCAPE 0x01
 #define LEFT_CTRL 0x1d
 #define ALT 0x38
+#define ESCAPE_CODE 0xE0
 
 #define KEY_PRESSED 1
 #define KEY_NOT_PRESSED 0
@@ -38,7 +39,7 @@ const char sc_ascii_capital[] = { '?', '?', '!', '@', '#', '$', '%', '^',
     '&', '*', '(', ')', '_', '+', '?', '?', 'Q', 'W', 'E', 'R', 'T', 'Y',
         'U', 'I', 'O', 'P', '{', '}', '?', '?', 'A', 'S', 'D', 'F', 'G',
         'H', 'J', 'K', 'L', ':', '"', '`', '?', '|', 'Z', 'X', 'C', 'V',
-        'B', 'N', 'M', '<', '>', '?', '?', '?', '?', ' ', '?', ' ',' ',
+        'B', 'N', 'M', '<', '>', '?', '?', '*', '?', ' ', '?', ' ',' ',
 		' ',' ',' ',' ', ' ', ' ', ' ', ' ', ' ',' ',
 		'7','8','9','-','4','5','6','+','1', '2', '3', '0', ' ', ' ',
 		' ', ' ', ' ', ' '};
@@ -47,14 +48,14 @@ const char sc_ascii_low[] = { '?', '?', '1', '2', '3', '4', '5', '6',
     '7', '8', '9', '0', '-', '=', '?', '?', 'q', 'w', 'e', 'r', 't', 'y',
         'u', 'i', 'o', 'p', '[', ']', '?', '?', 'a', 's', 'd', 'f', 'g',
         'h', 'j', 'k', 'l', ';', '\'', '`', '?', '\\', 'z', 'x', 'c', 'v',
-        'b', 'n', 'm', ',', '.', '/', '?', '?', '?', ' ', '?', ' ',' ',
+        'b', 'n', 'm', ',', '.', '?', '?', '*', '?', ' ', '?', ' ',' ',
 		' ',' ',' ',' ', ' ', ' ', ' ', ' ', ' ',' ',
 		'7','8','9','-','4','5','6','+','1', '2', '3', '0', ' ', ' ',
 		' ', ' ', ' ', ' '};
 
 static int shift_on = KEY_NOT_PRESSED;
 static int capslock_on = KEY_NOT_PRESSED;
-static int escape_scancode_on = 0;
+static u8 previous_key = 0;
 
 boolean capslock_and_shift_both_on_or_off (){
 	return (shift_on && capslock_on) || (!shift_on && !capslock_on);
@@ -120,25 +121,28 @@ boolean was_key_released(u8 scancode){
 }
 
 void handle_control_keys (u8 scancode){
-	//TODO home pg up down etc + arrow keys etc.
+	switch (scancode){
+		case 0x35:
+			print_string("/");
+	}
 	UNUSED(scancode);
 }
 
 static void keyboard_callback(registers_t* regs) {
 	    u8 scancode = port_byte_in(0x60);
-	    if (scancode == 0xE0){
-	    	escape_scancode_on = 1 - escape_scancode_on;
-	    }
+
 	    handle_shift_and_capslock(scancode);
 	    if (was_key_released(scancode)){
+	    	previous_key = scancode;
 	    	return;
 	    }
-	    if (escape_scancode_on){
+	    if (previous_key == ESCAPE_CODE){
 	    	handle_control_keys (scancode);
 	    }
 	    else{
 	    	handle_other_keys(scancode);
 	    }
+	    previous_key = scancode;
 
 	    UNUSED(regs);
 }
