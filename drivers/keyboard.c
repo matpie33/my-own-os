@@ -54,7 +54,7 @@ const char sc_ascii_low[] = { '?', '?', '1', '2', '3', '4', '5', '6',
 		' ', ' ', ' ', ' '};
 
 static int shift_on = KEY_NOT_PRESSED;
-static int capslock_on = KEY_NOT_PRESSED;
+static int capslock_on = KEY_NOT_PRESSED; //TODO we are supposing that caps is off when OS starts which is wrong
 static u8 previous_key = 0;
 
 boolean capslock_and_shift_both_on_or_off (){

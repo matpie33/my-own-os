@@ -15,7 +15,8 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
-	print_cursor();
+	point center = get_center_of_screen_for_object(16, 16);
+	print_cursor(center.x,center.y);
 
 //	print_string("This is a cool OS.");
 }
