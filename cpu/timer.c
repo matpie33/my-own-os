@@ -35,6 +35,13 @@ void init_timer(u32 freq){
 	port_byte_out (PIT_CHANNEL_0_DATA_PORT, high);
 }
 
+void sleep (u32 time){
+	u32 start = tick;
+	while (tick<time/10+start){
+
+	}
+}
+
 
 
 

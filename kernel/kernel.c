@@ -6,6 +6,7 @@
 #include "../libc/function.h"
 #include "../graphics/draw_pixel.h"
 #include "../graphics/draw_string.h"
+#include "../graphics/mouse_cursor.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -16,7 +17,14 @@ void start() {
 	init_timer(50);
 	init_keyboard();
 	point center = get_center_of_screen_for_object(16, 16);
-	print_cursor(center.x,center.y);
+	initialize_cursor(center.x, center.y);
+	int i;
+	for (i=1; i<1400; i++){
+		move_cursor_down(1);
+		sleep(20);
+
+	}
+
 
 //	print_string("This is a cool OS.");
 }

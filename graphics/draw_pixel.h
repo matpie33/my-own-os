@@ -4,8 +4,8 @@
 #include "../cpu/types.h"
 
 typedef struct {
-	int x;
-	int y;
+	u16 x;
+	u16 y;
 } point;
 
 typedef struct {
@@ -25,8 +25,8 @@ extern video_mode best_video_mode;
 u32* put_pixel(u32 x_pos, u32 y_pos, u32 color);
 void draw_horizontal_line (u32 x_pos, u32 y_pos, u32 color, int length);
 void draw_vertical_line (u32 x_pos, u32 y_pos, u32 color, int length);
-void draw_cursor(int x_pos, int y_pos);
-boolean object_can_be_drawn_at_position (int x_pos, int y_pos, int obj_width, int obj_height);
-point get_center_of_screen_for_object(int object_width, int object_height);
+void clear_area (u16 x_pos, u16 y_pos, u16 width, u16 height);
+boolean object_can_be_drawn_at_position (u16 x_pos, u16 y_pos, u16 obj_width, u16 obj_height);
+point get_center_of_screen_for_object(u16 object_width, u16 object_height);
 
 #endif
