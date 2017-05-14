@@ -55,18 +55,18 @@ const char sc_ascii_low[] = { '?', '?', '1', '2', '3', '4', '5', '6',
 
 static int shift_on = KEY_NOT_PRESSED;
 static int capslock_on = KEY_NOT_PRESSED; //TODO we are supposing that caps is off when OS starts which is wrong
-static u8 previous_key = 0;
+static uint8_t previous_key = 0;
 
 boolean capslock_and_shift_both_on_or_off (){
 	return (shift_on && capslock_on) || (!shift_on && !capslock_on);
 }
 
-boolean is_letter(u8 scancode){
+boolean is_letter(uint8_t scancode){
 	return (scancode <=0X19 && scancode>=0X10)
 			|| (scancode <=0X26 && scancode>=0x1E) || (scancode<=0X32 && scancode >=0x2C);
 }
 
-void handle_shift_and_capslock(u8 scancode){
+void handle_shift_and_capslock(uint8_t scancode){
 	if (scancode == LEFT_SHIFT){
 		shift_on=1-shift_on;
 	}
@@ -78,7 +78,7 @@ void handle_shift_and_capslock(u8 scancode){
 	}
 }
 
-void print_character(u8 scancode){
+void print_character(uint8_t scancode){
 	char letter;
 	if ((is_letter(scancode) && !capslock_and_shift_both_on_or_off()) || (!is_letter(scancode) && shift_on)){
 		letter = sc_ascii_capital[(int)scancode];
@@ -95,7 +95,7 @@ void print_character(u8 scancode){
 	print_string(str);
 }
 
-void handle_other_keys(u8 scancode){
+void handle_other_keys(uint8_t scancode){
 	if (scancode == BACKSPACE) {
 		backspace(key_buffer);
 		print_backspace();
@@ -116,11 +116,11 @@ void handle_other_keys(u8 scancode){
 	}
 }
 
-boolean was_key_released(u8 scancode){
+boolean was_key_released(uint8_t scancode){
 	return scancode & 0x80;
 }
 
-void handle_control_keys (u8 scancode){
+void handle_control_keys (uint8_t scancode){
 	switch (scancode){
 		case 0x35:
 			print_string("/");
@@ -129,7 +129,7 @@ void handle_control_keys (u8 scancode){
 }
 
 static void keyboard_callback(registers_t* regs) {
-	    u8 scancode = port_byte_in(0x60);
+		uint8_t scancode = port_byte_in(0x60);
 
 	    handle_shift_and_capslock(scancode);
 	    if (was_key_released(scancode)){

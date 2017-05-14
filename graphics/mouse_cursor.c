@@ -8,8 +8,8 @@ const short cursor [MOUSE_CURSOR_HEIGHT] = {
 	0x02d1,0x0109,0x0006
 };
 
-u16 mouse_x_position;
-u16 mouse_y_position;
+uint16_t mouse_x_position;
+uint16_t mouse_y_position;
 
 
 void draw_cursor (){
@@ -18,7 +18,7 @@ void draw_cursor (){
 	for (i=0; i<16; i++){
 		int row = cursor[i];
 		for (k =0; k<16; k++){
-			u16 bit = (row & (1 << k));
+			uint16_t bit = (row & (1 << k));
 			if (bit!=0){
 				put_pixel ( mouse_x_position+MOUSE_CURSOR_WIDTH-1-k, mouse_y_position+i,
 						0x00FFFFFF);
@@ -27,7 +27,7 @@ void draw_cursor (){
 	}
 }
 
-void initialize_cursor (u16 x_pos, u16 y_pos){
+void initialize_cursor (uint16_t x_pos, uint16_t y_pos){
 	mouse_x_position = x_pos;
 	mouse_y_position = y_pos;
 	draw_cursor();
@@ -37,7 +37,7 @@ void clear_cursor (){
 	clear_area(mouse_x_position, mouse_y_position,MOUSE_CURSOR_WIDTH, MOUSE_CURSOR_HEIGHT);
 }
 
-void move_cursor_right (u16 pixels_to_move){
+void move_cursor_right (uint16_t pixels_to_move){
 	if (object_can_be_drawn_at_position(mouse_x_position+pixels_to_move, mouse_y_position,
 			MOUSE_CURSOR_WIDTH,	MOUSE_CURSOR_HEIGHT)){
 		clear_cursor ();
@@ -46,7 +46,7 @@ void move_cursor_right (u16 pixels_to_move){
 	}
 }
 
-void move_cursor_left (u16 pixels_to_move){
+void move_cursor_left (uint16_t pixels_to_move){
 	if (object_can_be_drawn_at_position(mouse_x_position-pixels_to_move, mouse_y_position,
 			MOUSE_CURSOR_WIDTH,	MOUSE_CURSOR_HEIGHT)){
 		clear_cursor ();
@@ -55,7 +55,7 @@ void move_cursor_left (u16 pixels_to_move){
 	}
 }
 
-void move_cursor_up (u16 pixels_to_move){
+void move_cursor_up (uint16_t pixels_to_move){
 	if (object_can_be_drawn_at_position(mouse_x_position, mouse_y_position-pixels_to_move,
 			MOUSE_CURSOR_WIDTH,	MOUSE_CURSOR_HEIGHT)){
 		clear_cursor ();
@@ -64,7 +64,7 @@ void move_cursor_up (u16 pixels_to_move){
 	}
 }
 
-void move_cursor_down (u16 pixels_to_move){
+void move_cursor_down (uint16_t pixels_to_move){
 	if (object_can_be_drawn_at_position(mouse_x_position, mouse_y_position+pixels_to_move,
 			MOUSE_CURSOR_WIDTH,	MOUSE_CURSOR_HEIGHT)){
 		clear_cursor ();

@@ -1,7 +1,7 @@
 #include "idt.h"
 #include "types.h"
 
-void set_idt_gate(int n, u32 handler) {
+void set_idt_gate(int n, uint32_t handler) {
     idt[n].low_offset = low_16(handler);
     idt[n].sel = KERNEL_CS; //code segment to run interrupt handler in;
     idt[n].always0 = 0;
@@ -10,7 +10,7 @@ void set_idt_gate(int n, u32 handler) {
 }
 
 void set_idt() {
-    idt_reg.base = (u32) &idt;
+    idt_reg.base = (uint32_t) &idt;
     idt_reg.limit = IDT_ENTRIES * sizeof(idt_gate_t) - 1;
     asm volatile("lidtl (%0)" : : "r" (&idt_reg));
 }

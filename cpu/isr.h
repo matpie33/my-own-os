@@ -1,6 +1,7 @@
 #ifndef ISR_H
 #define ISR_H
 
+#include <stdint.h>
 #include "types.h"
 
 /*Interrupt service routines - saved in interrupt.asm - they handle interrupts*/
@@ -74,15 +75,15 @@ extern void irq15();
 void test();
 
 typedef struct {
-	u32 ds; // Data segment selector;
-	u32 edi, esi, ebp, esp, ebx, edx, ecx, eax; // pushed by pusha
-	u32 int_no, err_code; // interrupt number and error code
-	u32 eip, cs, eflags, useresp, ss; // pushed by processor automatically
+	uint32_t ds; // Data segment selector;
+	uint32_t edi, esi, ebp, esp, ebx, edx, ecx, eax; // pushed by pusha
+	uint32_t int_no, err_code; // interrupt number and error code
+	uint32_t eip, cs, eflags, useresp, ss; // pushed by processor automatically
 } registers_t;
 
 void isr_install();
 void isr_handler(registers_t* r);
 typedef void (*isr_t)(registers_t*);
-void register_interrupt_handler(u8 n, isr_t handler);
+void register_interrupt_handler(uint8_t n, isr_t handler);
 
 #endif
