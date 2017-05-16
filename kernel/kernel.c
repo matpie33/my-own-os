@@ -19,19 +19,37 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
-//	print_string("Initializing back buffer...");
 	initialize_back_buffer();
 
-	print_string("Done :)");
-	uint32_t newAddress = malloc(1000);
+	uint32_t newAddress = malloc(10);
 //	print_string(hex_to_string(newAddress));
-	uint32_t* pointer = (uint32_t*) newAddress;
-	*(pointer+10)=0xdead;
+	uint32_t* p = (uint32_t*) newAddress;
+//	test_allocated_memory(newAddress, 10);
+	int i;
+	for (i=0; i<10; i++){
+		*(p+i)=0x1+i;
+	}
+	print_pointer(p, 10);
+	println("after copy");
+	uint32_t add = malloc(30*sizeof(uint32_t));
+	uint32_t* p2 = (uint32_t*) add;
+//	test_allocated_memory(add, 30);
+	memory_copy(p, p2+10, 10);
+	print_pointer(p2, 30);
 
-	test_allocated_memory(newAddress,1000);
-
-	uint32_t newAddress2 = malloc(1000);
-	test_allocated_memory(newAddress2,1000);
+	println("tests:");
+	print_hex(0x1a);
+	print_hex(0xff);
+	print_hex(0x123);
+	print_hex(0xbaba);
+	print_hex(0xbacab);
+	print_hex(0xbbabba);
+	print_hex(0x1234567);
+	print_hex(0xa1b2c2c3);
+	print_hex(0x00aa00);
+	print_hex(0x00001);
+	print_hex(0x10000);
+	print_hex(0x0000100);
 
 	//TODO catch overflows
 

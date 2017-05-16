@@ -5,11 +5,13 @@
 #include "../graphics/draw_string.h"
 #include "../libc/function.h"
 #include "../libc/strings.h"
+#include "../libc/mem.h"
 
 uint32_t* back_buffer;
 
 void initialize_back_buffer(){
 	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
+	back_buffer = (uint32_t *) malloc(numberOfBytes);
 //	char* c = hex_to_string (numberOfBytes);
 //	print_string(c);
 //	print_string("we are here");

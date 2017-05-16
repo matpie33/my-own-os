@@ -19,9 +19,9 @@ void memory_set(uint8_t *dest, uint8_t val, uint32_t len) {
 
 uint32_t free_memory_start = 0x10000; // TODO learn how to use linker scripts to somehow read the kernel's
 									  // location from bootloader
-uint32_t malloc (uint32_t size){
+uint32_t malloc (uint32_t size_in_bytes){
 	uint32_t returnedAddress = free_memory_start;
-	free_memory_start+=size;
+	free_memory_start+=size_in_bytes*8;
 	return returnedAddress;
 }
 

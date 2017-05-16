@@ -97,6 +97,15 @@ void print_int (uint32_t value){
 
 void print_hex (uint32_t value){
 	print_string(hex_to_string(value));
+	print_string(", ");
+}
+
+void print_pointer(uint32_t* pointer, uint32_t size){
+	uint32_t i;
+	for (i=0; i<size; i++){
+			print_hex(*(pointer+i));
+			print_string(",");
+		}
 }
 
 
