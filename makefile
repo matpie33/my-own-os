@@ -16,6 +16,7 @@ clean:
 	
 run:
 	make os-image.img
+	"C:/Program Files (x86)/Bochs-2.6.8/bochs.exe" -f "C:/Program Files (x86)/Bochs-2.6.8/bochsrc.bxrc" -q
 
 os-image.img: boot/bootsect.bin kernel.bin
 	cat $^ > $@
