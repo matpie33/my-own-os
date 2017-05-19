@@ -10,6 +10,7 @@
 #include "../graphics/mouse_cursor.h"
 #include "../graphics/back_buffer.h"
 #include "../libc/mem.h"
+#include "../libc/printf.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -36,20 +37,10 @@ void start() {
 //	test_allocated_memory(add, 30);
 	memory_copy(p, p2+10, 10);
 	print_pointer(p2, 30);
-
-	println("tests:");
-	print_hex(0x1a);
-	print_hex(0xff);
-	print_hex(0x123);
-	print_hex(0xbaba);
-	print_hex(0xbacab);
-	print_hex(0xbbabba);
-	print_hex(0x1234567);
-	print_hex(0xa1b2c2c3);
-	print_hex(0x00aa00);
-	print_hex(0x00001);
-	print_hex(0x10000);
-	print_hex(0x0000100);
+	println("p pointer:");
+	print_pointer(p,10);
+	printf("Your name is %s, you are %d years old, you have a %c as first character"
+			"of last name", "mateusz", 23, 'p');
 
 	//TODO catch overflows
 
