@@ -11,6 +11,7 @@
 #include "../graphics/back_buffer.h"
 #include "../libc/mem.h"
 #include "../libc/printf.h"
+#include "../cpu/types.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -22,25 +23,6 @@ void start() {
 	init_keyboard();
 	initialize_back_buffer();
 
-	uint32_t newAddress = malloc(10);
-//	print_string(hex_to_string(newAddress));
-	uint32_t* p = (uint32_t*) newAddress;
-//	test_allocated_memory(newAddress, 10);
-	int i;
-	for (i=0; i<10; i++){
-		*(p+i)=0x1+i;
-	}
-	print_pointer(p, 10);
-	println("after copy");
-	uint32_t add = malloc(30*sizeof(uint32_t));
-	uint32_t* p2 = (uint32_t*) add;
-//	test_allocated_memory(add, 30);
-	memory_copy(p, p2+10, 10);
-	print_pointer(p2, 30);
-	println("p pointer:");
-	print_pointer(p,10);
-	printf("Your name is %s, you are %d years old, you have a %c as first character"
-			"of last name", "mateusz", 23, 'p');
 
 	//TODO catch overflows
 
@@ -49,7 +31,6 @@ void start() {
 
 
 //	int i;
-////	//TODO implement double buffering
 //	for (i=0; i<1200; i++){
 //		put_pixel(i, 100, 0x00FF0000);
 //	}
@@ -64,7 +45,7 @@ void start() {
 
 void user_input(char *input) {
     if (strcmp(input, "END") == 0) {
-    	print_string("Stopping the CPU. Bye!\n");
+    	println("Stopping the CPU. Bye!");
         __asm__ ("hlt");
     }
     print_string("You said: ");

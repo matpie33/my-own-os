@@ -2,6 +2,7 @@
 #include "strings.h"
 #include <stdarg.h>
 #include "../libc/mem.h"
+#include "../libc/hex_to_string.h"
 #define BUFFER_SIZE 1024
 
 int copy_int(char* indCharacters, char* destination, int destinationStartIndex){
@@ -47,6 +48,13 @@ void printf(char* format, ...){
 					c[1]='\0';
 					buffer[bufferIndex]=test;
 					bufferIndex = copy_int (c, buffer, bufferIndex);
+					break;
+				}
+				case 'x': {
+					int test = va_arg (list, int);
+					char* hex_string =hex_to_string(test);
+					bufferIndex = copy_int(hex_string, buffer, bufferIndex);
+					break;
 				}
 			}
 		}

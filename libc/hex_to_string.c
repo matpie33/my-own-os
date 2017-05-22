@@ -3,6 +3,7 @@
 #include "../libc/strings.h"
 #include "../graphics/draw_string.h"
 #include "mem.h"
+#include "../cpu/types.h"
 
 #define NUMBER_OF_CHARACTERS_FOR_32_BIT_HEX 11
 #define HEX_PREFIX_0X_SIZE 2
@@ -32,7 +33,7 @@ char * hex_to_string(uint32_t hexValue){
 	if (hexValue == 0x0){
 		//TODO maybe a better way
 		uint8_t hexDigits =1;
-		char* newResult = (char*)malloc(sizeof(char)*(HEX_PREFIX_0X_SIZE+hexDigits+1));
+		char* newResult = (char*)malloc(HEX_PREFIX_0X_SIZE+hexDigits+1, uint8);
 		newResult[0]='0';
 		newResult[1]='x';
 		newResult[2]='0';
@@ -56,7 +57,7 @@ char * hex_to_string(uint32_t hexValue){
 	while (rangeStart>0){
 		if (hexOriginal >= rangeStart && hexOriginal <=rangeEnd){
 			uint8_t arraySize = HEX_PREFIX_0X_SIZE+hexDigitsAmount+1;
-			char* newResult = (char*)malloc(sizeof(char)*arraySize);
+			char* newResult = (char*)malloc(arraySize, uint8);
 			for (i=0; i<arraySize-1; i++){
 				newResult[i] = '1'; //anything can go here
 			}

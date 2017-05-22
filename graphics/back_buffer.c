@@ -11,36 +11,9 @@ uint32_t* back_buffer;
 
 void initialize_back_buffer(){
 	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
-	back_buffer = (uint32_t *) malloc(numberOfBytes);
-//	char* c = hex_to_string (numberOfBytes);
-//	print_string(c);
-//	print_string("we are here");
+	back_buffer = (uint32_t *) malloc(numberOfBytes, uint32);
 
-	static uint32_t values[10000000];
-
-//	print_string(hex_to_string(&values));
-//	print_string(", ");
-//	print_string(hex_to_string((u32)(values+numberOfBytes)));
-
-	uint32_t i=0;
-//	if (i<365){
-//		print_string("test");
-//	}
-	for (i=0; i<10000000; i++){
-////		char asc[20];
-////		int_to_ascii(i, asc);
-////		print_string(asc);
-////		print_string(",");
-//		print_string("abc");
-//		values[i] = 1;
-	}
-//	values[numberOfBytes-1]=0;
-//	asm volatile("cli");
-//			asm volatile ("hlt");
-
-	UNUSED(values);
 	UNUSED(numberOfBytes);
-//	back_buffer = values;
 }
 
 void write_to_back_buffer(uint32_t* values, int startPosition, int length){
