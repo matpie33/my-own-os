@@ -23,6 +23,7 @@ void repaint(){
 	if (!has_dirty_area){
 		return;
 	}
+
 	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
 			dirty_area_starting_point.y);
 	uint32_t numberOfRows = dirty_area_end_point.y-dirty_area_starting_point.y+1;
@@ -35,6 +36,7 @@ void repaint(){
 				(uint32_t*)(best_video_mode.framebuffer+next_row), bytes_in_row*bytes_per_pixel);
 	}
 	has_dirty_area=false;
+	initialize();
 
 }
 

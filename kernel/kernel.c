@@ -25,12 +25,11 @@ void start() {
 	initialize_back_buffer();
 
 	//TODO filling whole screen is too slow with back buffer
-	//TODO if I draw horizontal lines and then the cursor animation, cursor moves too slow
-//	int j=0;
-//	for (j=0; j<5 ; j++){
-//		draw_horizontal_line(2, j, 0x00FF0000, 5);
-//	}
-//	repaint();
+	int j=0;
+	for (j=0; j<5 ; j++){
+		draw_horizontal_line(2, j, 0x00FF0000, 5);
+	}
+	repaint();
 	//TODO catch overflows
 	point center = get_center_of_screen_for_object(16, 16);
 	initialize_cursor(center.x, center.y);
