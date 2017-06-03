@@ -2,29 +2,97 @@
 #include "../cpu/types.h"
 #include "../libc/hex_to_string.h"
 #include "draw_string.h"
+#include "../libc/printf.h"
+#include "../libc/function.h"
 
+uint32_t* back_buffer;
+point dirty_area_starting_point;
+point dirty_area_end_point;
+boolean has_dirty_area;
+
+void initialize (){
+	dirty_area_starting_point= (point) {.x= best_video_mode.width, .y = best_video_mode.height};
+	dirty_area_end_point = (point) {.x =0, .y = 0};
+}
+
+uint32_t calculate_offset(uint32_t x_pos, uint32_t y_pos){
+	return y_pos*best_video_mode.bytes_per_line+(x_pos*(best_video_mode.bpp/8));
+}
+
+void repaint(){
+	if (!has_dirty_area){
+		return;
+	}
+	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
+			dirty_area_starting_point.y);
+	uint32_t numberOfRows = dirty_area_end_point.y-dirty_area_starting_point.y+1;
+	uint32_t bytes_in_row = dirty_area_end_point.x-dirty_area_starting_point.x+1;
+	uint32_t i;
+	uint8_t bytes_per_pixel = best_video_mode.bpp/8;
+	for (i=0; i<numberOfRows; i++){
+		uint32_t next_row = row_to_repaint+best_video_mode.bytes_per_line*i;
+		memory_copy((uint32_t*)((uint32_t)back_buffer+next_row),
+				(uint32_t*)(best_video_mode.framebuffer+next_row), bytes_in_row*bytes_per_pixel);
+	}
+	has_dirty_area=false;
+
+}
+
+void initialize_back_buffer(){
+	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
+	back_buffer = (uint32_t *) calloc(numberOfBytes, uint32);
+	test_allocated_memory((uint32_t)back_buffer, numberOfBytes);
+	has_dirty_area=false;
+}
+
+void check_for_dirty_area(uint32_t x_pos, uint32_t y_pos){
+	uint32_t end_point_offset = calculate_offset(dirty_area_end_point.x, dirty_area_end_point.y);
+	uint32_t starting_point_offset = calculate_offset(dirty_area_starting_point.x, dirty_area_starting_point.y);
+	uint32_t new_point_offset = calculate_offset(x_pos, y_pos);
+	if (!has_dirty_area){
+		has_dirty_area=true;
+	}
+	if (new_point_offset<starting_point_offset){
+		dirty_area_starting_point = (point) {.x = x_pos, .y = y_pos};
+	}
+	if (new_point_offset > end_point_offset){
+		dirty_area_end_point = (point) {.x = x_pos, .y = y_pos};
+	}
+}
+
+uint32_t* put_pixel2(uint32_t x_pos, uint32_t y_pos, uint32_t color){
+	uint32_t *video = (uint32_t*)(best_video_mode.framebuffer+calculate_offset(x_pos, y_pos));
+	*video=color;
+	return video;
+}
 
 
 uint32_t* put_pixel(uint32_t x_pos, uint32_t y_pos, uint32_t color){
-	uint32_t *video = (uint32_t*)(best_video_mode.framebuffer+
-			y_pos*best_video_mode.bytes_per_line+(x_pos*(best_video_mode.bpp/8)));
+	uint32_t current_offset = calculate_offset(x_pos, y_pos);
+	uint32_t *video = (uint32_t*)((uint32_t)back_buffer+current_offset);
 	*video=color;
+	check_for_dirty_area(x_pos, y_pos);
 	return video;
 }
 
 void draw_horizontal_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, int length){
 	uint32_t* video = put_pixel(x_pos, y_pos, color);
 	int i=1;
+	check_for_dirty_area(x_pos, y_pos);
+	check_for_dirty_area(x_pos+length, y_pos);
 	while (i<length){
 		video[i]=color;
+
 		i++;
 	}
 }
 
-void draw_vertical_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, int length){
+void draw_vertical_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t length){
 	uint32_t* video = put_pixel(x_pos, y_pos, color);
-	int i=0;
-	while (i<length*best_video_mode.bytes_per_line/4){
+	uint32_t i=0;
+	check_for_dirty_area(x_pos, y_pos);
+	check_for_dirty_area(x_pos, y_pos+length);
+	while (i<=length*best_video_mode.bytes_per_line/4){
 		video[i]=color;
 		i+=best_video_mode.bytes_per_line/4;
 	}
@@ -33,8 +101,6 @@ void draw_vertical_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, int len
 boolean object_can_be_drawn_at_position (uint16_t x_pos, uint16_t y_pos, uint16_t obj_width, uint16_t obj_height){
 	return x_pos+obj_width <= best_video_mode.width && y_pos+obj_height <= best_video_mode.height;
 }
-
-
 
 void clear_area (uint16_t x_pos, uint16_t y_pos, uint16_t width, uint16_t height){
 	int i=0;

@@ -8,7 +8,6 @@
 #include "../graphics/draw_pixel.h"
 #include "../graphics/draw_string.h"
 #include "../graphics/mouse_cursor.h"
-#include "../graphics/back_buffer.h"
 #include "../libc/mem.h"
 #include "../libc/printf.h"
 #include "../cpu/types.h"
@@ -21,26 +20,29 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
+	initialize();
+
 	initialize_back_buffer();
 
-
+	//TODO filling whole screen is too slow with back buffer
+	//TODO if I draw horizontal lines and then the cursor animation, cursor moves too slow
+//	int j=0;
+//	for (j=0; j<5 ; j++){
+//		draw_horizontal_line(2, j, 0x00FF0000, 5);
+//	}
+//	repaint();
 	//TODO catch overflows
+	point center = get_center_of_screen_for_object(16, 16);
+	initialize_cursor(center.x, center.y);
 
-//	point center = get_center_of_screen_for_object(16, 16);
-//	initialize_cursor(center.x, center.y);
-
-
-//	int i;
-//	for (i=0; i<1200; i++){
-//		put_pixel(i, 100, 0x00FF0000);
-//	}
-//	for (i=1; i<1400; i++){
-//		move_cursor_down(1);
-//		sleep(20);
-//	}
+	int i;
+	for (i=1; i<1400; i++){
+		move_cursor_down(1);
+		repaint();
+		sleep(15);
+	}
 
 
-//	print_string("This is a cool OS.");
 }
 
 void user_input(char *input) {

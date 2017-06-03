@@ -5,6 +5,7 @@
 #include "strings.h"
 #include "../cpu/types.h"
 #include "../libc/printf.h"
+#include "../libc/function.h"
 
 void memory_copy ( uint32_t *source , uint32_t *dest , int no_bytes ) {
 int i;
@@ -18,8 +19,8 @@ void memory_set(uint32_t *dest, uint32_t val, uint32_t len) {
     for ( ; len != 0; len--) *temp++ = val;
 }
 
-uint32_t free_memory_start = 0x10000; // TODO learn how to use linker scripts to somehow read the kernel's
-									  // location from bootloader
+uint32_t free_memory_start = 0x100000; // TODO learn how to use linker scripts to somehow read the kernel's
+									  // location from bootloader, for now: just set yourself above the stack
 uint8_t get_variable_size (variable_type variable_type){
 	uint8_t variable_size;
 	switch (variable_type){
@@ -48,8 +49,12 @@ uint32_t malloc (uint32_t required_space, variable_type variable_type){
 
 uint32_t calloc (uint32_t required_space, variable_type variable_type){
 	uint32_t returned_address = malloc(required_space, variable_type);
-	uint8_t type_size = get_variable_size(variable_type);
-	memory_set((uint32_t*)returned_address, 0, required_space/type_size);
+	uint32_t i=0;
+	uint8_t* pointer = (uint8_t*) returned_address;
+	for (i=0; i<required_space; i++){
+		*pointer=0;
+		pointer++;
+	}
 	return returned_address;
 }
 
@@ -60,9 +65,9 @@ void test_allocated_memory(uint32_t address, uint32_t size){
 	println("");
 	printf("testing memory: address: %x ", address);
 	printf("size: %d ", size);
-	println("");
 	uint32_t* block = (uint32_t*) address;
 	boolean noErrors = true;
+	printf("value tested is %x", address);
 	for (i=0; i<size; i++){
 		uint32_t valueTested = *(block+i);
 		if (valueTested != 0){
