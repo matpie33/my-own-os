@@ -25,21 +25,18 @@ void start() {
 	initialize_back_buffer();
 
 	//TODO filling whole screen is too slow with back buffer
-	int j=0;
-	for (j=0; j<5 ; j++){
-		draw_horizontal_line(2, j, 0x00FF0000, 5);
-	}
+	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
 	repaint();
 	//TODO catch overflows
-	point center = get_center_of_screen_for_object(16, 16);
-	initialize_cursor(center.x, center.y);
-
-	int i;
-	for (i=1; i<1400; i++){
-		move_cursor_down(1);
-		repaint();
-		sleep(15);
-	}
+//	point center = get_center_of_screen_for_object(16, 16);
+//	initialize_cursor(center.x, center.y);
+//
+//	int i;
+//	for (i=1; i<1400; i++){
+//		move_cursor_down(1);
+//
+//		sleep(15);
+//	}
 
 
 }

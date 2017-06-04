@@ -30,10 +30,12 @@ void repaint(){
 	uint32_t bytes_in_row = dirty_area_end_point.x-dirty_area_starting_point.x+1;
 	uint32_t i;
 	uint8_t bytes_per_pixel = best_video_mode.bpp/8;
+	uint32_t bytes_to_copy = bytes_in_row*bytes_per_pixel;
+	uint32_t address = (uint32_t)back_buffer;
 	for (i=0; i<numberOfRows; i++){
-		uint32_t next_row = row_to_repaint+best_video_mode.bytes_per_line*i;
-		memory_copy((uint32_t*)((uint32_t)back_buffer+next_row),
-				(uint32_t*)(best_video_mode.framebuffer+next_row), bytes_in_row*bytes_per_pixel);
+		row_to_repaint = row_to_repaint+best_video_mode.bytes_per_line;
+		memory_copy((uint32_t*)(address+row_to_repaint),
+				(uint32_t*)(best_video_mode.framebuffer+row_to_repaint), bytes_to_copy);
 	}
 	has_dirty_area=false;
 	initialize();
@@ -97,6 +99,20 @@ void draw_vertical_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_
 	while (i<=length*best_video_mode.bytes_per_line/4){
 		video[i]=color;
 		i+=best_video_mode.bytes_per_line/4;
+	}
+}
+
+void fill_rectangle (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t width, uint32_t height){
+	uint32_t* video = put_pixel(x_pos, y_pos, color);
+	check_for_dirty_area(x_pos, y_pos);
+	check_for_dirty_area(x_pos+width, y_pos+height);
+	uint32_t i=0;
+	for (i=0; i<height; i++){
+		uint32_t j;
+		for (j=0; j< width; j++){
+			video[j] = color;
+		}
+		video+=best_video_mode.bytes_per_line/4;
 	}
 }
 

@@ -27,6 +27,7 @@ extern video_mode best_video_mode;
 uint32_t* put_pixel(uint32_t x_pos, uint32_t y_pos, uint32_t color);
 void draw_horizontal_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, int length);
 void draw_vertical_line (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t length);
+void fill_rectangle (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t width, uint32_t height);
 void clear_area (uint16_t x_pos, uint16_t y_pos, uint16_t width, uint16_t height);
 boolean object_can_be_drawn_at_position (uint16_t x_pos, uint16_t y_pos, uint16_t obj_width, uint16_t obj_height);
 point get_center_of_screen_for_object(uint16_t object_width, uint16_t object_height);
