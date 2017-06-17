@@ -45,7 +45,6 @@ void repaint(){
 void initialize_back_buffer(){
 	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
 	back_buffer = (uint32_t *) calloc(numberOfBytes, uint32);
-	test_allocated_memory((uint32_t)back_buffer, numberOfBytes);
 	has_dirty_area=false;
 }
 

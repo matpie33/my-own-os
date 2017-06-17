@@ -11,6 +11,7 @@
 #include "../libc/mem.h"
 #include "../libc/printf.h"
 #include "../cpu/types.h"
+#include "../drivers/mouse.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -19,14 +20,19 @@ void start() {
 	isr_install();
 	asm volatile("sti");
 	init_timer(50);
-	init_keyboard();
+//	init_keyboard(); //TODO mouse doesn't work when keyboard is enabled
 	initialize();
+//	print_string("dsfajfsdklf"); //TODO what happened to print_string? not working with put_pixel
+								 // i.e. with back-buffered version of printing
+//	printf("yo");
 
 	initialize_back_buffer();
 
+	init_mouse();
+
 	//TODO filling whole screen is too slow with back buffer
-	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
-	repaint();
+//	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
+//	repaint();
 	//TODO catch overflows
 //	point center = get_center_of_screen_for_object(16, 16);
 //	initialize_cursor(center.x, center.y);

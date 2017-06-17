@@ -21,7 +21,7 @@ boolean cursor_within_n_characters_from_end_of_line(uint8_t n){
 }
 
 void draw_letter(uint16_t x_pos, uint16_t y_pos, uint32_t color){
-	put_pixel((uint32_t)(MARGIN_LEFT+x_pos), (uint32_t)(MARGIN_UP+y_pos), color);
+	put_pixel2((uint32_t)(MARGIN_LEFT+x_pos), (uint32_t)(MARGIN_UP+y_pos), color);
 }
 
 void draw_string(char* a, uint32_t color){
