@@ -5,6 +5,7 @@
 #include "../cpu/isr.h"
 #include "../libc/function.h"
 #include "../graphics/draw_string.h"
+#include "../util/util.h"
 
 #define COMMAND_PORT 0x64
 #define DATA_PORT 0x60
@@ -23,6 +24,8 @@
 #define COMMAND_SET_SAMPLE_RATE 0xF3
 
 const uint16_t sleep_time = 1000;
+uint8_t byte_number;
+uint8_t bytes_in_packet;
 
 void wait_before_sending(){
 	while ((port_byte_in(COMMAND_PORT) & 2) != 0 ){
@@ -34,7 +37,7 @@ void wait_before_sending(){
 
 void wait_before_getting(){
 	uint8_t hey = port_byte_in(COMMAND_PORT);
-	while ( (hey & 1) != 1 ){
+	while ( (hey & 1) != 1 ){ //TODO use my utils instead
 		hey = port_byte_in(COMMAND_PORT);
 		sleep(sleep_time);
 	}
@@ -114,11 +117,44 @@ uint8_t get_mouse_id(){
 
 }
 
+boolean left_button_pressed (uint8_t byte_to_check){
+	return check_if_bit_is_set(byte_to_check, 0);
+}
+
+boolean right_button_pressed (uint8_t byte_to_check){
+	return check_if_bit_is_set(byte_to_check, 1);
+}
+
+boolean middle_button_pressed (uint8_t byte_to_check){
+	return check_if_bit_is_set(byte_to_check, 2);
+}
+
 static void mouse_callback(registers_t* regs){
+
+	if (byte_number > bytes_in_packet){
+		byte_number=1;
+	}
+
+
 	uint8_t value = get_from_port(DATA_PORT);
-	print_hex(value);
-	print_string(",");
+	if (byte_number ==1){
+		boolean left_button = left_button_pressed(value);
+		if (left_button){
+			printf("left click");
+		}
+		boolean right_button = right_button_pressed (value);
+		if (right_button){
+			printf("right click");
+		}
+		boolean middle_button = middle_button_pressed (value);
+		if (middle_button){
+			printf("middle ");
+		}
+	}
+//	print_hex(value);
+//	print_string(",");
 	UNUSED(regs);
+	byte_number ++;
 }
 
 void enable_mouse_wheel(){
@@ -132,6 +168,7 @@ void enable_mouse_wheel(){
 	uint8_t mouse_id = get_mouse_id();
 	if (mouse_id == 0x03){
 		printf("mouse wheel enabled");
+		bytes_in_packet = 4;
 	}
 }
 
@@ -145,6 +182,8 @@ void enable_packets (){
 }
 
 void init_mouse(){
+	byte_number = 1;
+	bytes_in_packet = 3;
 	enable_irq_12();
 	get_mouse_id();
 	enable_mouse_wheel();
