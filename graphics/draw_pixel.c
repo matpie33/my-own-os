@@ -23,7 +23,6 @@ void repaint(){
 	if (!has_dirty_area){
 		return;
 	}
-
 	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
 			dirty_area_starting_point.y);
 	uint32_t numberOfRows = dirty_area_end_point.y-dirty_area_starting_point.y+1;
@@ -33,9 +32,9 @@ void repaint(){
 	uint32_t bytes_to_copy = bytes_in_row*bytes_per_pixel;
 	uint32_t address = (uint32_t)back_buffer;
 	for (i=0; i<numberOfRows; i++){
-		row_to_repaint = row_to_repaint+best_video_mode.bytes_per_line;
 		memory_copy((uint32_t*)(address+row_to_repaint),
 				(uint32_t*)(best_video_mode.framebuffer+row_to_repaint), bytes_to_copy);
+		row_to_repaint = row_to_repaint+best_video_mode.bytes_per_line;
 	}
 	has_dirty_area=false;
 	initialize();

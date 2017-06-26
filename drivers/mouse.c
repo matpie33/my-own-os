@@ -6,6 +6,7 @@
 #include "../libc/function.h"
 #include "../graphics/draw_string.h"
 #include "../util/util.h"
+#include "../graphics/mouse_cursor.h"
 
 #define COMMAND_PORT 0x64
 #define DATA_PORT 0x60
@@ -24,12 +25,15 @@
 #define COMMAND_SET_SAMPLE_RATE 0xF3
 
 const uint16_t sleep_time = 1000;
-uint8_t byte_number;
+uint8_t byte_number_counter;
 uint8_t bytes_in_packet;
+boolean left_button_pressed;
+boolean right_button_pressed;
+boolean middle_button_pressed;
+ //TODO 2 printf signed int
 
 void wait_before_sending(){
 	while ((port_byte_in(COMMAND_PORT) & 2) != 0 ){
-		printf("Wbs ");
 		sleep(sleep_time);
 	}
 }
@@ -94,71 +98,83 @@ void send_data (uint8_t data_byte){
 
 void enable_irq_12 (){
 
-//	printf("get status byte");
 	send_to_command_port(COMMAND_GET_COMPAQ_STATUS_BYTE); //0x20
-//	printf("waiting for status byte");
 	uint8_t status = get_from_port(DATA_PORT);
-//	printf("status byte:  %x",status);
 	status = enable_irq_disable_clock_on_status_byte(status);
-//	printf("setting compaq status command");
 	send_to_command_port(COMMAND_SET_COMPAQ_STATUS_BYTE); //0x60
-//	printf("sending status byte");
 	send_to_data_port(status);
-//	printf("sent new status byte with irq enabled");
-//	printf("setting defaults");
 }
 
 uint8_t get_mouse_id(){
-//	printf("Getting mouse id");
 	send_command(COMMAND_GET_MOUSE_ID);
 	uint8_t mouse_id = get_from_port(DATA_PORT);
-	printf("mouse id is %x", mouse_id);
+	//TODO handle in printf the situation when we use % but don't give the next variable
 	return mouse_id;
 
 }
 
-boolean left_button_pressed (uint8_t byte_to_check){
-	return check_if_bit_is_set(byte_to_check, 0);
+boolean is_left_button_pressed (uint8_t packet_first_byte){
+	return check_if_bit_is_set(packet_first_byte, 0);
 }
 
-boolean right_button_pressed (uint8_t byte_to_check){
-	return check_if_bit_is_set(byte_to_check, 1);
+boolean is_right_button_pressed (uint8_t packet_first_byte){
+	return check_if_bit_is_set(packet_first_byte, 1);
 }
 
-boolean middle_button_pressed (uint8_t byte_to_check){
-	return check_if_bit_is_set(byte_to_check, 2);
+boolean is_middle_button_pressed (uint8_t packet_first_byte){
+	return check_if_bit_is_set(packet_first_byte, 2);
+}
+
+void check_for_clicking (uint8_t packet_first_byte){
+	if (byte_number_counter ==1){
+			boolean left_button = is_left_button_pressed(packet_first_byte);
+			if (left_button){ //TODO when we hold the click and move mouse we should not get "left click message"
+				left_button_pressed = true;
+			}
+			else if (left_button_pressed){
+				left_button_pressed = false;
+			}
+			boolean right_button = is_right_button_pressed (packet_first_byte);
+			if (right_button){
+				right_button_pressed = true;
+			}
+			else if (right_button_pressed){
+				right_button_pressed = false;
+			}
+			boolean middle_button = is_middle_button_pressed (packet_first_byte);
+			if (middle_button){ //TODO not working properly
+				middle_button_pressed = true;
+			}
+			else if (middle_button_pressed){
+				middle_button_pressed = false;
+			}
+		}
+}
+
+
+void move_mouse (int8_t value){
+	if (byte_number_counter == 2){
+		move_cursor_horizontally(value);
+	}
+	if (byte_number_counter == 3){
+		value*=-1;
+		move_cursor_vertically(value);
+	}
 }
 
 static void mouse_callback(registers_t* regs){
 
-	if (byte_number > bytes_in_packet){
-		byte_number=1;
+	if (byte_number_counter > bytes_in_packet){
+		byte_number_counter=1;
 	}
-
-
-	uint8_t value = get_from_port(DATA_PORT);
-	if (byte_number ==1){
-		boolean left_button = left_button_pressed(value);
-		if (left_button){
-			printf("left click");
-		}
-		boolean right_button = right_button_pressed (value);
-		if (right_button){
-			printf("right click");
-		}
-		boolean middle_button = middle_button_pressed (value);
-		if (middle_button){
-			printf("middle ");
-		}
-	}
-//	print_hex(value);
-//	print_string(",");
+	int8_t value = get_from_port(DATA_PORT);
+	check_for_clicking(value);
+	move_mouse (value);
+	byte_number_counter ++;
 	UNUSED(regs);
-	byte_number ++;
 }
 
 void enable_mouse_wheel(){
-//	printf("setting sample rate");
 	send_command(COMMAND_SET_SAMPLE_RATE);
 	send_command(200);
 	send_command(COMMAND_SET_SAMPLE_RATE);
@@ -167,23 +183,26 @@ void enable_mouse_wheel(){
 	send_command(80);
 	uint8_t mouse_id = get_mouse_id();
 	if (mouse_id == 0x03){
-		printf("mouse wheel enabled");
 		bytes_in_packet = 4;
 	}
 }
 
 void enable_packets (){
-	printf("set sample rate 40");
 	send_command(COMMAND_SET_SAMPLE_RATE);
-	send_command(40);
-	printf("done");
+	send_command(100);
 	send_command(COMMAND_ENABLE_PACKET_STREAMING);
-	printf("enabled packet streaming");
+}
+
+void initiate_variables (){
+	byte_number_counter = 1;
+	bytes_in_packet = 3;
+	left_button_pressed = false;
+	right_button_pressed = false;
+	middle_button_pressed = false;
 }
 
 void init_mouse(){
-	byte_number = 1;
-	bytes_in_packet = 3;
+	initiate_variables();
 	enable_irq_12();
 	get_mouse_id();
 	enable_mouse_wheel();
