@@ -33,7 +33,6 @@ boolean object_can_be_drawn_at_position (uint16_t x_pos, uint16_t y_pos, uint16_
 point get_center_of_screen_for_object(uint16_t object_width, uint16_t object_height);
 void initialize_back_buffer();
 void repaint();
-uint32_t* put_pixel2(uint32_t x_pos, uint32_t y_pos, uint32_t color);
 void initialize ();
 
 #endif

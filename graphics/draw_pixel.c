@@ -62,13 +62,6 @@ void check_for_dirty_area(uint32_t x_pos, uint32_t y_pos){
 	}
 }
 
-uint32_t* put_pixel2(uint32_t x_pos, uint32_t y_pos, uint32_t color){
-	uint32_t *video = (uint32_t*)(best_video_mode.framebuffer+calculate_offset(x_pos, y_pos));
-	*video=color;
-	return video;
-}
-
-
 uint32_t* put_pixel(uint32_t x_pos, uint32_t y_pos, uint32_t color){
 	uint32_t current_offset = calculate_offset(x_pos, y_pos);
 	uint32_t *video = (uint32_t*)((uint32_t)back_buffer+current_offset);
@@ -112,6 +105,7 @@ void fill_rectangle (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t wi
 		}
 		video+=best_video_mode.bytes_per_line/4;
 	}
+	repaint();
 }
 
 boolean object_can_be_drawn_at_position (uint16_t x_pos, uint16_t y_pos, uint16_t obj_width, uint16_t obj_height){
