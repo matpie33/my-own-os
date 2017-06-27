@@ -33,16 +33,16 @@ boolean middle_button_pressed;
  //TODO 2 printf signed int
 
 void wait_before_sending(){
-	while ((port_byte_in(COMMAND_PORT) & 2) != 0 ){
+	while (is_bit_set(port_byte_in(COMMAND_PORT), 1)){
 		sleep(sleep_time);
 	}
 }
 
 
 void wait_before_getting(){
-	uint8_t hey = port_byte_in(COMMAND_PORT);
-	while ( (hey & 1) != 1 ){ //TODO use my utils instead
-		hey = port_byte_in(COMMAND_PORT);
+	uint8_t byte_to_check = port_byte_in(COMMAND_PORT);
+	while (!is_bit_set(byte_to_check, 0)){
+		byte_to_check = port_byte_in(COMMAND_PORT);
 		sleep(sleep_time);
 	}
 }
@@ -56,17 +56,15 @@ void send_to_command_port (uint8_t command_byte){
 	port_byte_out(COMMAND_PORT, command_byte);
 }
 
-
-
 uint8_t get_from_port (uint8_t port){
 	wait_before_getting();
 	return port_byte_in(port);
 }
 
 uint8_t enable_irq_disable_clock_on_status_byte(uint8_t status_byte){
-	uint8_t new_status_byte = status_byte | 2;
-	new_status_byte = new_status_byte & ~ 0x20;
-	return new_status_byte;
+	status_byte = set_bit(status_byte, 1);
+	status_byte = clear_bit(status_byte, 5);
+	return status_byte;
 }
 
 void wait_for_ack(){
@@ -80,7 +78,6 @@ void wait_for_ack(){
 void send_command (uint8_t command_byte){
 	send_to_command_port(D4_BYTE);
 	send_to_data_port(command_byte);
-
 	wait_for_ack();
 }
 
@@ -97,11 +94,10 @@ void send_data (uint8_t data_byte){
 
 
 void enable_irq_12 (){
-
-	send_to_command_port(COMMAND_GET_COMPAQ_STATUS_BYTE); //0x20
+	send_to_command_port(COMMAND_GET_COMPAQ_STATUS_BYTE);
 	uint8_t status = get_from_port(DATA_PORT);
 	status = enable_irq_disable_clock_on_status_byte(status);
-	send_to_command_port(COMMAND_SET_COMPAQ_STATUS_BYTE); //0x60
+	send_to_command_port(COMMAND_SET_COMPAQ_STATUS_BYTE);
 	send_to_data_port(status);
 }
 
@@ -114,15 +110,15 @@ uint8_t get_mouse_id(){
 }
 
 boolean is_left_button_pressed (uint8_t packet_first_byte){
-	return check_if_bit_is_set(packet_first_byte, 0);
+	return is_bit_set(packet_first_byte, 0);
 }
 
 boolean is_right_button_pressed (uint8_t packet_first_byte){
-	return check_if_bit_is_set(packet_first_byte, 1);
+	return is_bit_set(packet_first_byte, 1);
 }
 
 boolean is_middle_button_pressed (uint8_t packet_first_byte){
-	return check_if_bit_is_set(packet_first_byte, 2);
+	return is_bit_set(packet_first_byte, 2);
 }
 
 void check_for_clicking (uint8_t packet_first_byte){
@@ -151,7 +147,6 @@ void check_for_clicking (uint8_t packet_first_byte){
 		}
 }
 
-
 void move_mouse (int8_t value){
 	if (byte_number_counter == 2){
 		move_cursor_horizontally(value);
@@ -163,7 +158,6 @@ void move_mouse (int8_t value){
 }
 
 static void mouse_callback(registers_t* regs){
-
 	if (byte_number_counter > bytes_in_packet){
 		byte_number_counter=1;
 	}

@@ -25,13 +25,10 @@ void start() {
 	initialize_back_buffer();
 	init_mouse();
 	//TODO windows + d bugs the mouse
-//	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
+	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
 //	repaint();
-//	print_string("dsfajfsdklf"); //TODO what happened to print_string? not working with put_pixel
-								 // i.e. with back-buffered version of printing
-//	printf("yo");
 
-
+	//TODO why mouse works better when there is background drawn than without background // maybe it's just visual effect
 
 	point center = get_center_of_screen_for_object(16, 16);
 	initialize_cursor(center.x, center.y);
