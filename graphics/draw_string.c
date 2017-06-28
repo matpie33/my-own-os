@@ -87,6 +87,7 @@ void print_backspace(){
 			draw_letter(text_cursor_position_x + j, text_cursor_position_y+i, 0);
 		}
 	}
+	repaint();
 }
 
 void print_tab (){

@@ -21,18 +21,17 @@ void start() {
 	asm volatile("sti");
 	init_timer(50);
 	init_keyboard();
-	initialize();
-	initialize_back_buffer();
 	init_mouse();
-	//TODO windows + d bugs the mouse
-	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
+	initialize_graphics();
+
+//	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
 //	repaint();
 
 	//TODO why mouse works better when there is background drawn than without background // maybe it's just visual effect
 
 	point center = get_center_of_screen_for_object(16, 16);
 	initialize_cursor(center.x, center.y);
-	printf("start");
+//	printf("start");
 
 	//TODO filling whole screen is too slow with back buffer
 //	fill_rectangle(1,1, 0x00FF0000, 1280, 760);

@@ -10,9 +10,21 @@ point dirty_area_starting_point;
 point dirty_area_end_point;
 boolean has_dirty_area;
 
+
+void initialize_back_buffer(){
+	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
+	back_buffer = (uint32_t *) calloc(numberOfBytes, uint32);
+	has_dirty_area=false;
+}
+
 void initialize (){
 	dirty_area_starting_point= (point) {.x= best_video_mode.width, .y = best_video_mode.height};
 	dirty_area_end_point = (point) {.x =0, .y = 0};
+}
+
+void initialize_graphics (){
+	initialize();
+	initialize_back_buffer();
 }
 
 uint32_t calculate_offset(uint32_t x_pos, uint32_t y_pos){
@@ -41,24 +53,22 @@ void repaint(){
 
 }
 
-void initialize_back_buffer(){
-	uint32_t numberOfBytes = best_video_mode.height*best_video_mode.width*best_video_mode.bpp/8;
-	back_buffer = (uint32_t *) calloc(numberOfBytes, uint32);
-	has_dirty_area=false;
-}
 
 void check_for_dirty_area(uint32_t x_pos, uint32_t y_pos){
-	uint32_t end_point_offset = calculate_offset(dirty_area_end_point.x, dirty_area_end_point.y);
-	uint32_t starting_point_offset = calculate_offset(dirty_area_starting_point.x, dirty_area_starting_point.y);
-	uint32_t new_point_offset = calculate_offset(x_pos, y_pos);
 	if (!has_dirty_area){
 		has_dirty_area=true;
 	}
-	if (new_point_offset<starting_point_offset){
-		dirty_area_starting_point = (point) {.x = x_pos, .y = y_pos};
+	if (x_pos < dirty_area_starting_point.x){
+		dirty_area_starting_point.x = x_pos;
 	}
-	if (new_point_offset > end_point_offset){
-		dirty_area_end_point = (point) {.x = x_pos, .y = y_pos};
+	if (y_pos < dirty_area_starting_point.y){
+		dirty_area_starting_point.y = y_pos;
+	}
+	if (x_pos > dirty_area_end_point.x){
+		dirty_area_end_point.x = x_pos;
+	}
+	if (y_pos > dirty_area_end_point.y){
+		dirty_area_end_point.y = y_pos;
 	}
 }
 

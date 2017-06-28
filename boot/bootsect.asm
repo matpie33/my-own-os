@@ -12,7 +12,7 @@ call load2ndStage
 [bits 16]
 load2ndStage:
 mov bx, KERNEL_OFFSET   ; Set -up parameters for our disk_load routine , so
-mov dh, 40		; that we load the first 15 sectors ( excluding
+mov dh, 45		; that we load the first 15 sectors ( excluding
 mov dl, [ BOOT_DRIVE ]  ; the boot sector ) from the boot disk ( i.e. our
 mov cl, 0x02
 call disk_load 			; kernel code ) to address KERNEL_OFFSET
