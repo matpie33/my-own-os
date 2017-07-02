@@ -12,6 +12,7 @@
 #include "../libc/printf.h"
 #include "../cpu/types.h"
 #include "../drivers/mouse.h"
+#include "../util/pointer_handling.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -24,24 +25,21 @@ void start() {
 	init_mouse();
 	initialize_graphics();
 
+
 //	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
-//	repaint();
 
-	//TODO why mouse works better when there is background drawn than without background // maybe it's just visual effect
+	initialize_cursor();
 
-	point center = get_center_of_screen_for_object(16, 16);
-	initialize_cursor(center.x, center.y);
 //	printf("start");
 
 	//TODO filling whole screen is too slow with back buffer
 //	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
-//	repaint();
 	//TODO catch overflows
 
 //		sleep(4000);
-//		move_cursor_vertically(5); //seems 1st row of cursor is not painted
+		move_cursor_vertically(5);
 //		sleep(4000);
-//		move_cursor_vertically(5); //seems 1st row of cursor is not painted
+//		move_cursor_vertically(5);
 //		sleep(15);
 //	}
 

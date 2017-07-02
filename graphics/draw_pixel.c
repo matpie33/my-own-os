@@ -28,29 +28,79 @@ void initialize_graphics (){
 }
 
 uint32_t calculate_offset(uint32_t x_pos, uint32_t y_pos){
-	return y_pos*best_video_mode.bytes_per_line+(x_pos*(best_video_mode.bpp/8));
+	return y_pos*best_video_mode.bytes_per_line+(x_pos*(best_video_mode.bytes_per_pixel));
+}
+
+uint32_t copy_bytes_to_front_buffer_and_update_row_to_repaint(uint32_t* address_of_bytes_to_copy,
+		uint32_t bytes_to_copy,	uint32_t row_to_repaint){
+	memory_copy(address_of_bytes_to_copy,
+					(uint32_t*)(best_video_mode.framebuffer+row_to_repaint), bytes_to_copy);
+	return row_to_repaint+best_video_mode.bytes_per_line;
+}
+
+void copy_bytes_from_back_to_front_buffer (uint32_t bytes_to_copy, uint32_t number_of_rows,
+		boolean remember_bytes,	uint32_t* container_for_bytes[] ){
+	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
+				dirty_area_starting_point.y);
+	uint32_t address = (uint32_t)back_buffer;
+	uint32_t i;
+	//TODO check if container has array size == number of rows
+	for (i=0; i<number_of_rows; i++){
+		if (remember_bytes){
+			memory_copy((uint32_t*)(address+row_to_repaint), container_for_bytes[i], bytes_to_copy);
+		}
+		row_to_repaint=copy_bytes_to_front_buffer_and_update_row_to_repaint((uint32_t*)(address+row_to_repaint),
+				bytes_to_copy, row_to_repaint);
+	}
+}
+
+dirty_area_bytes calculate_number_of_bytes_to_copy (){
+	uint32_t number_of_rows = dirty_area_end_point.y-dirty_area_starting_point.y+1;
+	uint32_t bytes_in_row = dirty_area_end_point.x-dirty_area_starting_point.x+1;
+	dirty_area_bytes bytes;
+	bytes.bytes_in_row = bytes_in_row;
+	bytes.number_of_rows = number_of_rows;
+	return bytes;
 }
 
 void repaint(){
 	if (!has_dirty_area){
 		return;
 	}
-	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
-			dirty_area_starting_point.y);
-	uint32_t numberOfRows = dirty_area_end_point.y-dirty_area_starting_point.y+1;
-	uint32_t bytes_in_row = dirty_area_end_point.x-dirty_area_starting_point.x+1;
-	uint32_t i;
-	uint8_t bytes_per_pixel = best_video_mode.bpp/8;
-	uint32_t bytes_to_copy = bytes_in_row*bytes_per_pixel;
-	uint32_t address = (uint32_t)back_buffer;
-	for (i=0; i<numberOfRows; i++){
-		memory_copy((uint32_t*)(address+row_to_repaint),
-				(uint32_t*)(best_video_mode.framebuffer+row_to_repaint), bytes_to_copy);
-		row_to_repaint = row_to_repaint+best_video_mode.bytes_per_line;
-	}
+	dirty_area_bytes bytes =calculate_number_of_bytes_to_copy();
+	uint32_t* no_pointers [0]; //TODO how to workaround this? maybe create another method that takes
+								//no pointer and calls this method
+	copy_bytes_from_back_to_front_buffer(bytes.bytes_in_row, bytes.number_of_rows, false,
+			no_pointers );
 	has_dirty_area=false;
 	initialize();
+}
 
+void repaint_using_ready_bytes (uint32_t* ready_bytes [], uint32_t array_size, uint32_t pointer_size,
+		point point){
+	uint32_t row_to_repaint = calculate_offset(point.x,	point.y);
+	repaint();
+	uint32_t i;
+	for (i=0; i<array_size; i++){
+		row_to_repaint=copy_bytes_to_front_buffer_and_update_row_to_repaint(ready_bytes[i],
+				pointer_size, row_to_repaint);
+	}
+}
+
+uint32_t repaint_and_remember_pixels (uint32_t* container_for_bytes[]){
+	if (!has_dirty_area){
+			return 0;
+	}
+	dirty_area_bytes bytes =calculate_number_of_bytes_to_copy();
+	uint32_t i;
+	for (i=0; i<bytes.number_of_rows; i++){
+		container_for_bytes [i] = (uint32_t*) malloc(bytes.bytes_in_row, uint32);
+	}
+	copy_bytes_from_back_to_front_buffer(bytes.bytes_in_row, bytes.number_of_rows, true,
+			container_for_bytes);
+	has_dirty_area=false;
+	initialize();
+	return bytes.bytes_in_row;
 }
 
 
@@ -108,12 +158,13 @@ void fill_rectangle (uint32_t x_pos, uint32_t y_pos, uint32_t color, uint32_t wi
 	check_for_dirty_area(x_pos, y_pos);
 	check_for_dirty_area(x_pos+width, y_pos+height);
 	uint32_t i=0;
+	uint16_t bytes_per_row = best_video_mode.bytes_per_line/4;
 	for (i=0; i<height; i++){
 		uint32_t j;
 		for (j=0; j< width; j++){
 			video[j] = color;
 		}
-		video+=best_video_mode.bytes_per_line/4;
+		video+= bytes_per_row;
 	}
 	repaint();
 }
@@ -123,13 +174,7 @@ boolean object_can_be_drawn_at_position (uint16_t x_pos, uint16_t y_pos, uint16_
 }
 
 void clear_area (uint16_t x_pos, uint16_t y_pos, uint16_t width, uint16_t height){
-	int i=0;
-	int j=0;
-		for (i=0; i<width; i++){
-			for (j =0; j<height; j++){
-				put_pixel ( x_pos+i, y_pos+j, 0);
-			}
-		}
+	fill_rectangle(x_pos, y_pos, 0, width, height);
 }
 
 point get_center_of_screen_for_object(uint16_t object_width, uint16_t object_height){

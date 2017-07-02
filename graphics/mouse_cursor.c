@@ -10,6 +10,9 @@ const short cursor [MOUSE_CURSOR_HEIGHT] = {
 	0x02d1,0x0109,0x0006
 };
 
+uint32_t* mouse_pixels_bytes [MOUSE_CURSOR_WIDTH];
+uint32_t pointer_size;
+
 uint16_t mouse_x_position;
 uint16_t mouse_y_position;
 uint16_t max_x_position;
@@ -33,20 +36,28 @@ void draw_cursor (){
 	}
 }
 
+void draw_cursor_using_ready_bytes (){
+	point p;
+	p.x= mouse_x_position; //TODO copy only non zero bytes
+	p.y = mouse_y_position;
+	repaint_using_ready_bytes(mouse_pixels_bytes, MOUSE_CURSOR_WIDTH, pointer_size, p);
+}
+
 void clear_cursor (){
 	clear_area(mouse_x_position, mouse_y_position,MOUSE_CURSOR_WIDTH, MOUSE_CURSOR_HEIGHT);
 }
 
-void initialize_cursor (uint16_t x_pos, uint16_t y_pos){
-	mouse_x_position = x_pos;
-	mouse_y_position = y_pos;
+void initialize_cursor (){
+	point center = get_center_of_screen_for_object(MOUSE_CURSOR_WIDTH, MOUSE_CURSOR_HEIGHT);
+	mouse_x_position = center.x;
+	mouse_y_position = center.y;
 	max_x_position = best_video_mode.width - MOUSE_CURSOR_WIDTH;
 	max_y_position = best_video_mode.height - MOUSE_CURSOR_HEIGHT;
 	min_x_position = 0;
 	min_y_position = 0;
 	draw_cursor();
+	pointer_size = repaint_and_remember_pixels(mouse_pixels_bytes);
 
-	repaint();
 }
 
 
@@ -85,10 +96,11 @@ void move_cursor_horizontally (int8_t pixels_to_move){
 
 //		move_mouse_on_screen(mouse_x_position+pixels_to_move, mouse_y_position);
 		clear_cursor ();
+//		repaint();
 		mouse_x_position+=pixels_to_move;
-
-		draw_cursor();
-		repaint();
+		draw_cursor_using_ready_bytes();
+//		draw_cursor();
+//		repaint();
 	}
 	else{
 		clear_cursor ();
@@ -99,9 +111,9 @@ void move_cursor_horizontally (int8_t pixels_to_move){
 		else if (destination_x_pos < min_x_position){
 			mouse_x_position = min_x_position;
 		}
-
-		draw_cursor();
-		repaint();
+		draw_cursor_using_ready_bytes();
+//		draw_cursor();
+//		repaint();
 	}
 }
 
@@ -114,12 +126,14 @@ void move_cursor_vertically (int8_t pixels_to_move){
 			MOUSE_CURSOR_WIDTH,	MOUSE_CURSOR_HEIGHT)){
 
 		clear_cursor ();
+//		repaint();
 		//TODO 2 when there's a lot of text printed, repainting cause clearing more space
 		// horizontally than it should
 
 		mouse_y_position+=pixels_to_move;
-		draw_cursor();
-		repaint();
+		draw_cursor_using_ready_bytes();
+//		draw_cursor();
+//		repaint();
 	}
 	else{
 		uint8_t destination_y_pos = mouse_y_position + pixels_to_move;
@@ -130,8 +144,9 @@ void move_cursor_vertically (int8_t pixels_to_move){
 		else if (destination_y_pos < min_y_position){
 			mouse_y_position = min_y_position;
 		}
-		draw_cursor();
-		repaint();
+		draw_cursor_using_ready_bytes();
+//		draw_cursor();
+//		repaint();
 	}
 }
 

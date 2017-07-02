@@ -5,8 +5,8 @@
 #include "../cpu/isr.h"
 #include "../libc/function.h"
 #include "../graphics/draw_string.h"
-#include "../util/util.h"
 #include "../graphics/mouse_cursor.h"
+#include "../util/bit_handling.h"
 
 #define COMMAND_PORT 0x64
 #define DATA_PORT 0x60
@@ -183,7 +183,7 @@ void enable_mouse_wheel(){
 
 void enable_packets (){
 	send_command(COMMAND_SET_SAMPLE_RATE);
-	send_command(100);
+	send_command(40);
 	send_command(COMMAND_ENABLE_PACKET_STREAMING);
 }
 
