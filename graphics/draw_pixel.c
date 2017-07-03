@@ -38,19 +38,18 @@ uint32_t copy_bytes_to_front_buffer_and_update_row_to_repaint(uint32_t* address_
 	return row_to_repaint+best_video_mode.bytes_per_line;
 }
 
-void copy_bytes_from_back_to_front_buffer (uint32_t bytes_to_copy, uint32_t number_of_rows,
+void copy_bytes_from_back_to_front_buffer (dirty_area_bytes bytes_to_copy_struct,
 		boolean remember_bytes,	uint32_t* container_for_bytes[] ){
 	uint32_t row_to_repaint = calculate_offset(dirty_area_starting_point.x,
 				dirty_area_starting_point.y);
 	uint32_t address = (uint32_t)back_buffer;
 	uint32_t i;
-	//TODO check if container has array size == number of rows
-	for (i=0; i<number_of_rows; i++){
+	for (i=0; i<bytes_to_copy_struct.number_of_rows; i++){
 		if (remember_bytes){
-			memory_copy((uint32_t*)(address+row_to_repaint), container_for_bytes[i], bytes_to_copy);
+			memory_copy((uint32_t*)(address+row_to_repaint), container_for_bytes[i], bytes_to_copy_struct.bytes_in_row);
 		}
-		row_to_repaint=copy_bytes_to_front_buffer_and_update_row_to_repaint((uint32_t*)(address+row_to_repaint),
-				bytes_to_copy, row_to_repaint);
+		row_to_repaint=copy_bytes_to_front_buffer_and_update_row_to_repaint((uint32_t*)
+				(address+row_to_repaint), bytes_to_copy_struct.bytes_in_row, row_to_repaint);
 	}
 }
 
@@ -70,8 +69,7 @@ void repaint(){
 	dirty_area_bytes bytes =calculate_number_of_bytes_to_copy();
 	uint32_t* no_pointers [0]; //TODO how to workaround this? maybe create another method that takes
 								//no pointer and calls this method
-	copy_bytes_from_back_to_front_buffer(bytes.bytes_in_row, bytes.number_of_rows, false,
-			no_pointers );
+	copy_bytes_from_back_to_front_buffer(bytes, false, no_pointers );
 	has_dirty_area=false;
 	initialize();
 }
@@ -96,8 +94,7 @@ uint32_t repaint_and_remember_pixels (uint32_t* container_for_bytes[]){
 	for (i=0; i<bytes.number_of_rows; i++){
 		container_for_bytes [i] = (uint32_t*) malloc(bytes.bytes_in_row, uint32);
 	}
-	copy_bytes_from_back_to_front_buffer(bytes.bytes_in_row, bytes.number_of_rows, true,
-			container_for_bytes);
+	copy_bytes_from_back_to_front_buffer(bytes, true, container_for_bytes);
 	has_dirty_area=false;
 	initialize();
 	return bytes.bytes_in_row;

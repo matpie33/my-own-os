@@ -27,9 +27,9 @@
 const uint16_t sleep_time = 1000;
 uint8_t byte_number_counter;
 uint8_t bytes_in_packet;
-boolean left_button_pressed;
-boolean right_button_pressed;
-boolean middle_button_pressed;
+boolean left_button_currently_pressed;
+boolean right_button_currently_pressed;
+boolean middle_button_currently_pressed;
  //TODO 2 printf signed int
 
 void wait_before_sending(){
@@ -121,28 +121,41 @@ boolean is_middle_button_pressed (uint8_t packet_first_byte){
 	return is_bit_set(packet_first_byte, 2);
 }
 
-void check_for_clicking (uint8_t packet_first_byte){
+void check_for_clicking (int8_t packet_first_byte){
 	if (byte_number_counter ==1){
-			boolean left_button = is_left_button_pressed(packet_first_byte);
-			if (left_button){ //TODO when we hold the click and move mouse we should not get "left click message"
-				left_button_pressed = true;
+			boolean left_button_pressed_now = is_left_button_pressed(packet_first_byte);
+			if (left_button_pressed_now ){
+				if (!left_button_currently_pressed){
+					left_button_currently_pressed = true;
+				}
 			}
-			else if (left_button_pressed){
-				left_button_pressed = false;
+			else {
+				if (left_button_currently_pressed){
+					left_button_currently_pressed = false;
+				}
 			}
-			boolean right_button = is_right_button_pressed (packet_first_byte);
-			if (right_button){
-				right_button_pressed = true;
+			boolean right_button_pressed_now = is_right_button_pressed (packet_first_byte);
+			if (right_button_pressed_now){
+				if (!right_button_currently_pressed){
+					right_button_currently_pressed = true;
+				}
 			}
-			else if (right_button_pressed){
-				right_button_pressed = false;
+			else{
+				if (right_button_currently_pressed){
+					right_button_currently_pressed = false;
+				}
 			}
-			boolean middle_button = is_middle_button_pressed (packet_first_byte);
-			if (middle_button){ //TODO not working properly
-				middle_button_pressed = true;
+			boolean middle_button_pressed_now = is_middle_button_pressed (packet_first_byte);
+			if (middle_button_pressed_now){
+				if (!middle_button_currently_pressed){
+					middle_button_currently_pressed = true;
+				}
+
 			}
-			else if (middle_button_pressed){
-				middle_button_pressed = false;
+			else {
+				if (middle_button_currently_pressed){
+					middle_button_currently_pressed = false;
+				}
 			}
 		}
 }
@@ -190,9 +203,9 @@ void enable_packets (){
 void initiate_variables (){
 	byte_number_counter = 1;
 	bytes_in_packet = 3;
-	left_button_pressed = false;
-	right_button_pressed = false;
-	middle_button_pressed = false;
+	left_button_currently_pressed = false;
+	right_button_currently_pressed = false;
+	middle_button_currently_pressed = false;
 }
 
 void init_mouse(){

@@ -1,6 +1,7 @@
 #include "draw_pixel.h"
 #include "../libc/printf.h"
 #include "../graphics/draw_string.h"
+#include "../util/bit_handling.h"
 
 #define MOUSE_CURSOR_WIDTH 16
 #define MOUSE_CURSOR_HEIGHT 16
@@ -25,9 +26,9 @@ void draw_cursor (){
 	int i=0;
 	int k=0;
 	for (i=0; i<16; i++){
-		int row = cursor[i];
+		short row = cursor[i];
 		for (k =0; k<16; k++){
-			uint16_t bit = (row & (1 << k)); //TODO use my utils function instead
+			uint16_t bit = is_bit_set(row, k);
 			if (bit!=0){
 				put_pixel ( mouse_x_position+MOUSE_CURSOR_WIDTH-1-k, mouse_y_position+i,
 						0x00FFFFFF);
@@ -57,10 +58,7 @@ void initialize_cursor (){
 	min_y_position = 0;
 	draw_cursor();
 	pointer_size = repaint_and_remember_pixels(mouse_pixels_bytes);
-
 }
-
-
 
 void move_mouse_on_screen(uint8_t new_x_pos, uint8_t new_y_pos){
 	clear_cursor ();
