@@ -1,7 +1,8 @@
-#include "draw_pixel.h"
-#include "../libc/printf.h"
-#include "../graphics/draw_string.h"
+#include "stdint.h"
+
+#include "../cpu/types.h"
 #include "../util/bit_handling.h"
+#include "draw_pixel.h"
 
 #define MOUSE_CURSOR_WIDTH 16
 #define MOUSE_CURSOR_HEIGHT 16

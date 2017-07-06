@@ -1,11 +1,8 @@
-#include <stdint.h>
-//TODO #ifdef DEBUG
-#include "hex_to_string.h"
-#include "../graphics/draw_string.h"
-#include "strings.h"
+#include "stdint.h"
+
 #include "../cpu/types.h"
-#include "../libc/printf.h"
-#include "../libc/function.h"
+#include "../graphics/draw_string.h"
+#include "printf.h"
 
 void memory_copy ( uint32_t *source , uint32_t *dest , int no_bytes ) {
 int i;

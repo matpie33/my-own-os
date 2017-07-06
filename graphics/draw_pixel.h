@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include "../cpu/types.h"
-#include "../libc/mem.h"
 
 typedef struct {
 	uint16_t x;

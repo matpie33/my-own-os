@@ -1,8 +1,9 @@
+#include "stdarg.h"
+
 #include "../graphics/draw_string.h"
+#include "hex_to_string.h"
 #include "strings.h"
-#include <stdarg.h>
-#include "../libc/mem.h"
-#include "../libc/hex_to_string.h"
+
 #define BUFFER_SIZE 1024
 
 int copy_int(char* indCharacters, char* destination, int destinationStartIndex){

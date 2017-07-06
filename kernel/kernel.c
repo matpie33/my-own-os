@@ -1,18 +1,12 @@
 #include "../cpu/isr.h"
 #include "../cpu/timer.h"
-#include "../cpu/types.h"
 #include "../drivers/keyboard.h"
-#include "../libc/strings.h"
-#include "../libc/function.h"
-#include "../libc/hex_to_string.h"
+#include "../drivers/mouse.h"
 #include "../graphics/draw_pixel.h"
 #include "../graphics/draw_string.h"
 #include "../graphics/mouse_cursor.h"
-#include "../libc/mem.h"
 #include "../libc/printf.h"
-#include "../cpu/types.h"
-#include "../drivers/mouse.h"
-#include "../util/pointer_handling.h"
+#include "../libc/strings.h"
 
 void start() {
 	// Initialization has to be completed first, otherwise keyboard buffer will be full and we won't get
@@ -25,7 +19,6 @@ void start() {
 	init_mouse();
 	initialize_graphics();
 
-	//TODO clean unused imports (find a tool for it)
 	//TODO maybe mouse scaling will help me? or check mouse.c functions and optimize if possible
 	//TODO handle the screen properly i.e. use all the screen in bochs
 

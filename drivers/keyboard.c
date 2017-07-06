@@ -1,12 +1,13 @@
 #include "keyboard.h"
+#include "stdint.h"
+
 #include "../cpu/isr.h"
 #include "../cpu/port_read_write.h"
+#include "../cpu/types.h"
 #include "../graphics/draw_string.h"
+#include "../kernel/kernel.h"
 #include "../libc/function.h"
 #include "../libc/strings.h"
-#include "../cpu/port_read_write.h"
-#include "../kernel/kernel.h"
-#include "../libc/hex_to_string.h"
 
 #define BACKSPACE 0x0E
 #define TAB 0x0F

@@ -1,9 +1,8 @@
-#include <stdint.h>
-#include "../libc/function.h"
-#include "../libc/strings.h"
-#include "../graphics/draw_string.h"
-#include "mem.h"
+#include "stdint.h"
+
 #include "../cpu/types.h"
+#include "mem.h"
+#include "strings.h"
 
 #define NUMBER_OF_CHARACTERS_FOR_32_BIT_HEX 11
 #define HEX_PREFIX_0X_SIZE 2

@@ -1,9 +1,7 @@
 #include "draw_pixel.h"
-#include "../cpu/types.h"
-#include "../libc/hex_to_string.h"
-#include "draw_string.h"
-#include "../libc/printf.h"
-#include "../libc/function.h"
+#include <stdint.h>
+#include "../libc/mem.h"
+
 
 uint32_t* back_buffer;
 point dirty_area_starting_point;

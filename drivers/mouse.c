@@ -1,11 +1,11 @@
-#include "../cpu/port_read_write.h"
-#include <stdint.h>
-#include "../libc/printf.h"
-#include "../cpu/timer.h"
+#include "stdint.h"
+
 #include "../cpu/isr.h"
-#include "../libc/function.h"
-#include "../graphics/draw_string.h"
+#include "../cpu/port_read_write.h"
+#include "../cpu/timer.h"
+#include "../cpu/types.h"
 #include "../graphics/mouse_cursor.h"
+#include "../libc/function.h"
 #include "../util/bit_handling.h"
 
 #define COMMAND_PORT 0x64
