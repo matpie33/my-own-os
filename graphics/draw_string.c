@@ -70,7 +70,7 @@ void print_string(char *a) {
 void println(char *a) {
 	print_string(a);
 	print_string("\n");
-}
+	}
 
 void print_backspace() {
 	if (text_cursor_position_x >= LETTER_SIZE) {
@@ -79,14 +79,14 @@ void print_backspace() {
 	else if (text_cursor_position_y > LETTER_SIZE && text_cursor_position_x == 0) {
 		text_cursor_position_x = 0;
 		text_cursor_position_y -= LETTER_SIZE;
-	}
+		}
 	unsigned int i;
 	unsigned int j;
-	for (i = 0; i < LETTER_SIZE ; i++) {
-		for (j = 0; j < LETTER_SIZE ; j++) {
+		for (i = 0; i < LETTER_SIZE ; i++) {
+			for (j = 0; j < LETTER_SIZE ; j++) {
 			draw_letter(text_cursor_position_x + j, text_cursor_position_y + i, 0);
+			}
 		}
-	}
 	repaint();
 }
 
@@ -94,36 +94,36 @@ void print_tab() {
 	uint8_t i;
 	uint8_t number_of_spaces_for_tab = 4;
 	if (cursor_within_n_characters_from_end_of_line(number_of_spaces_for_tab)) {
-		move_cursor_to_next_line();
-	}
+			move_cursor_to_next_line();
+		}
 	for (i = 0; i < number_of_spaces_for_tab; i++) {
 		print_string(" ");
 	}
-}
+	}
 
 void print_int(uint32_t value) {
 	char asc[10];
 	int_to_ascii(value, asc);
 	print_string(asc);
-}
+	}
 
 void print_hex(uint32_t value) {
 	print_string(hex_to_string(value));
 	print_string(", ");
-}
+	}
 
 void print_pointer(uint32_t* pointer, uint32_t size) {
 	uint32_t i;
 	for (i = 0; i < size; i++) {
 		print_hex(*(pointer + i));
 		print_string(",");
+		}
 	}
-}
 
 void print_char(uint8_t charValue) {
 	char c[2];
 	c[0] = charValue;
 	c[1] = '\0';
 	print_string(c);
-}
-
+	}
+	
