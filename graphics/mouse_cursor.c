@@ -1,6 +1,7 @@
 #include "stdint.h"
 
 #include "../cpu/types.h"
+#include "../libc/printf.h"
 #include "../util/bit_handling.h"
 #include "draw_pixel.h"
 
@@ -12,7 +13,7 @@ const short cursor[MOUSE_CURSOR_HEIGHT] = { 0xc000, 0xb000, 0x4c00, 0x4380, 0x20
 		0x0006 };
 
 uint32_t* mouse_pixels_bytes[MOUSE_CURSOR_WIDTH];
-uint32_t pointer_size;
+uint32_t bytes_per_each_mouse_cursor_row;
 
 uint16_t mouse_x_position;
 uint16_t mouse_y_position;
@@ -40,33 +41,33 @@ void draw_cursor_using_ready_bytes() {
 	point p;
 	p.x = mouse_x_position; //TODO copy only non zero bytes
 	p.y = mouse_y_position;
-	repaint_using_ready_bytes(mouse_pixels_bytes, MOUSE_CURSOR_WIDTH, pointer_size, p);
+	repaint_using_ready_bytes(mouse_pixels_bytes, MOUSE_CURSOR_WIDTH,
+			bytes_per_each_mouse_cursor_row, p);
 }
 
 void clear_cursor() {
 	clear_area(mouse_x_position, mouse_y_position, MOUSE_CURSOR_WIDTH,
-			MOUSE_CURSOR_HEIGHT);
+	MOUSE_CURSOR_HEIGHT);
 }
 
 void initialize_cursor() {
-	point center = get_center_of_screen_for_object(MOUSE_CURSOR_WIDTH,
-			MOUSE_CURSOR_HEIGHT);
-	mouse_x_position = center.x;
-	mouse_y_position = center.y;
+	point screen_center = get_center_of_screen_for_object(MOUSE_CURSOR_WIDTH,
+	MOUSE_CURSOR_HEIGHT);
+	mouse_x_position = screen_center.x;
+	mouse_y_position = screen_center.y;
 	max_x_position = best_video_mode.width - MOUSE_CURSOR_WIDTH;
 	max_y_position = best_video_mode.height - MOUSE_CURSOR_HEIGHT;
 	min_x_position = 0;
 	min_y_position = 0;
 	draw_cursor();
-	pointer_size = repaint_and_remember_pixels(mouse_pixels_bytes);
+	bytes_per_each_mouse_cursor_row = repaint_and_remember_pixels(mouse_pixels_bytes);
 }
 
-void move_mouse_on_screen(uint8_t new_x_pos, uint8_t new_y_pos) {
+void move_mouse_on_screen(uint16_t new_x_pos, uint16_t new_y_pos) {
 	clear_cursor();
 	mouse_x_position = new_x_pos;
 	mouse_y_position = new_y_pos;
-	draw_cursor();
-	repaint();
+	draw_cursor_using_ready_bytes();
 }
 
 boolean mouse_moved_outside_right_edge(int8_t pixels_to_move) {
@@ -94,27 +95,17 @@ void move_cursor_horizontally(int8_t pixels_to_move) {
 	if (object_can_be_drawn_at_position(mouse_x_position + pixels_to_move,
 			mouse_y_position,
 			MOUSE_CURSOR_WIDTH, MOUSE_CURSOR_HEIGHT)) {
-
-		//		move_mouse_on_screen(mouse_x_position+pixels_to_move, mouse_y_position);
-		clear_cursor();
-		//		repaint();
-		mouse_x_position += pixels_to_move;
-		draw_cursor_using_ready_bytes();
-		//		draw_cursor();
-		//		repaint();
+		move_mouse_on_screen(mouse_x_position + pixels_to_move, mouse_y_position);
 	}
 	else {
-		clear_cursor();
-		uint8_t destination_x_pos = mouse_x_position + pixels_to_move;
+		int16_t destination_x_pos = mouse_x_position + pixels_to_move;
 		if (destination_x_pos > max_x_position) {
-			mouse_x_position = max_x_position;
+			destination_x_pos = max_x_position;
 		}
 		else if (destination_x_pos < min_x_position) {
-			mouse_x_position = min_x_position;
+			destination_x_pos = min_x_position;
 		}
-		draw_cursor_using_ready_bytes();
-		//		draw_cursor();
-		//		repaint();
+		move_mouse_on_screen(destination_x_pos, mouse_y_position);
 	}
 }
 
@@ -126,29 +117,17 @@ void move_cursor_vertically(int8_t pixels_to_move) {
 	if (object_can_be_drawn_at_position(mouse_x_position,
 			mouse_y_position + pixels_to_move,
 			MOUSE_CURSOR_WIDTH, MOUSE_CURSOR_HEIGHT)) {
-
-		clear_cursor();
-		//		repaint();
-		//TODO 2 when there's a lot of text printed, repainting cause clearing more space
-		// horizontally than it should
-
-		mouse_y_position += pixels_to_move;
-		draw_cursor_using_ready_bytes();
-		//		draw_cursor();
-		//		repaint();
+		move_mouse_on_screen(mouse_x_position, mouse_y_position + pixels_to_move);
 	}
 	else {
-		uint8_t destination_y_pos = mouse_y_position + pixels_to_move;
-		clear_cursor();
+		int16_t destination_y_pos = mouse_y_position + pixels_to_move;
 		if (destination_y_pos > max_y_position) {
-			mouse_y_position = max_y_position;
+			destination_y_pos = max_y_position;
 		}
 		else if (destination_y_pos < min_y_position) {
-			mouse_y_position = min_y_position;
+			destination_y_pos = min_y_position;
 		}
-		draw_cursor_using_ready_bytes();
-		//		draw_cursor();
-		//		repaint();
+		move_mouse_on_screen(mouse_x_position, destination_y_pos);
 	}
 }
 
