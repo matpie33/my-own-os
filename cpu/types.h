@@ -2,7 +2,7 @@
 #define TYPES_H
 
 typedef enum {
-true, false
+false, true
 }boolean;
 typedef enum {
 uint8, uint16, uint32
