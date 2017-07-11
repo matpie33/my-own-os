@@ -19,27 +19,16 @@ void start() {
 	init_mouse();
 	initialize_graphics();
 
-	//TODO maybe mouse scaling will help me? or check mouse.c functions and optimize if possible
-	//TODO handle the screen properly i.e. use all the screen in bochs
-
 	fill_rectangle(1, 1, 0x00FF0000, 1280, 760);
 	fill_rectangle(100, 100, 0x00AAAAAA, 700, 760);
 	fill_rectangle(500, 500, 0x00CCCCCC, 100, 100);
 
 	initialize_cursor();
 
-	//	printf("start");
-
 	//TODO filling whole screen is too slow with back buffer
-	//	fill_rectangle(1,1, 0x00FF0000, 1280, 760);
 	//TODO catch overflows
 
-	//		sleep(4000);
 	move_cursor_vertically(5);
-	//		sleep(4000);
-	//		move_cursor_vertically(5);
-	//		sleep(15);
-	//	}
 
 }
 

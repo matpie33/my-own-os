@@ -22,12 +22,8 @@ void copyContents(char source[], char destination[], uint8_t size) {
 
 char * hex_to_string(uint32_t hexValue) {
 	static char result[NUMBER_OF_CHARACTERS_FOR_32_BIT_HEX];
-	uint8_t index = 0;
-	result[index] = '0';
-	index++;
-	result[index] = 'x';
-	index++;
-	int i;
+	result[0] = '0';
+	result[1] = 'x';
 	uint32_t hexOriginal = hexValue;
 	if (hexValue == 0x0) {
 		//TODO maybe a better way
@@ -38,6 +34,8 @@ char * hex_to_string(uint32_t hexValue) {
 		newResult[2] = '0';
 		return newResult;
 	}
+	uint8_t index = 2;
+	int i;
 	for (i = NUMBER_OF_CHARACTERS_FOR_32_BIT_HEX - 2; i >= index; i--) {
 		uint8_t digit = hexValue & 0x000f;
 		digit += 0x30;
