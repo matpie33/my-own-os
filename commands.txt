@@ -1,0 +1,17 @@
+nasm -f bin bootloader.asm -o bootloader
+
+dd if=bootloader of=disk.img bs=512 count=1 seek=0
+
+qemu-system-i386 -machine q35 -fda disk.img -gdb tcp::26000 -S
+
+gdb
+
+set architecture i8086
+
+target remote localhost:26000
+
+breakpoint
+b *0x7c00 
+
+start
+c
