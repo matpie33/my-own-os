@@ -3,7 +3,7 @@ BOOTLOADER=$(BUILD_DIR)/bootloader/bootloader.o
 OS=$(BUILD_DIR)/os/sample.o
 DISK_IMG=$(BUILD_DIR)/disk.img
 
-all:  bootdisk
+all:  clean bootdisk
 
 .PHONY: bootdisk bootloader os
 
@@ -23,3 +23,7 @@ bootdisk: bootloader os
 	
 qemu:
 	qemu-system-i386 -machine q35 -fda $(DISK_IMG) -gdb tcp::26000 -S
+	
+clean:
+	make -C bootloader clean
+	make -C os clean
