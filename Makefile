@@ -1,29 +1,33 @@
-BUILD_DIR =build
-BOOTLOADER=$(BUILD_DIR)/bootloader/bootloader.o
-OS=$(BUILD_DIR)/os/sample.o
-DISK_IMG=$(BUILD_DIR)/disk.img
 
-all:  clean bootdisk
+
+all:  bootloader kernel bootdisk
 
 .PHONY: bootdisk bootloader os
 
+clean:
+	rm boot.o
+	rm kernel.o
+	rm myos.bin
+	rm myos.iso
+
 bootloader:
-	make -C bootloader
+	i686-elf-as boot.s -o boot.o
 	
-os:
-	make -C os
+kernel:
+	i686-elf-gcc -c kernel.c -o kernel.o -std=gnu99 -ffreestanding -O2 -Wall -Wextra
+	i686-elf-gcc -T linker.ld -o myos.bin -ffreestanding -O2 -nostdlib boot.o kernel.o -lgcc
 
 
 
-bootdisk: bootloader os
-	dd if=/dev/zero of=$(DISK_IMG) bs=512 count=2880
-	dd conv=notrunc if=$(BOOTLOADER) of=$(DISK_IMG) bs=512 count=1 seek=0
-
-	dd conv=notrunc if=$(OS) of=$(DISK_IMG) bs=512 count=1 seek=1
+bootdisk: bootloader os	
+	mkdir -p isodir/boot/grub
+	cp myos.bin isodir/boot/myos.bin
+	cp grub.cfg isodir/boot/grub/grub.cfg
+	grub-mkrescue -o myos.iso isodir
 	
 qemu:
-	qemu-system-i386 -machine q35 -fda $(DISK_IMG) -gdb tcp::26000 -S
+	qemu-system-i386 -cdrom myos.iso -gdb tcp::26000 -S
 	
-clean:
-	make -C bootloader clean
-	make -C os clean
+	
+	
+
