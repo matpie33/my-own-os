@@ -5,3 +5,5 @@
 isodir
 *.bin
 *.iso
+/.vscode
+/sysroot
