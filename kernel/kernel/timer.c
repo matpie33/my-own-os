@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <kernel/irq_handler.h>
 #include <stdint.h>
+#include <kernel/interrupt_requests.h>
 
 uint32_t tick = 0;
 
@@ -14,6 +15,8 @@ static void timer_callback(registers_t regs)
 void init_timer(uint32_t frequency)
 {
    register_interrupt_handler(IRQ0, &timer_callback);   
+   IRQ_clear_mask(0);
+   
 
    // The value we send to the PIT is the value to divide it's input clock
    // (1193180 Hz) by, to get our required frequency. Important to note is

@@ -1,9 +1,8 @@
 .macro IRQ i, j
 .global irq\i
-irq\i:
-    cli
+irq\i:    
     push $0
-    push \j
+    push $\i
     jmp irq_common_stub 
     iret 
 .endm
@@ -39,7 +38,11 @@ irq_common_stub:
    mov %ax, %fs
    mov %ax, %gs
 
+   push %esp
+
    call irq_handler
+
+   add $4, %esp
 
    pop %ebx        # reload the original data segment descriptor
    mov %bx, %ds
@@ -48,6 +51,5 @@ irq_common_stub:
    mov %bx, %gs
 
    popa                     # Pops edi,esi,ebp...
-   add $8, %esp     # Cleans up the pushed error code and pushed ISR number
-   sti
+   add $8, %esp     # Cleans up the pushed error code and pushed ISR number   
    iret           # pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP

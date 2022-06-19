@@ -7,3 +7,4 @@ isodir
 *.iso
 /.vscode
 /sysroot
+*.log

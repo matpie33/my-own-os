@@ -28,3 +28,10 @@ void IRQ_clear_mask(unsigned char IRQline) {
     value = inbyte(port) & ~(1 << IRQline);
     outbyte(port, value);        
 }
+
+void mask_all_IRQs(){
+  for (int8_t i =0; i< 16; i++){
+    IRQ_set_mask(i);
+  }
+  
+}

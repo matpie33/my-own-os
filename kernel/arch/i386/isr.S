@@ -5,12 +5,17 @@ idt_flush:
     lidt (%eax)        # Load the IDT pointer.
     ret
 
+.global enable_interrupts
+enable_interrupts:
+    sti
+    ret
+
 .extern isr_handler
 
 .macro isr_err_stub p
 .global isr\p
 isr\p:
-    cli
+    
     call isr_handler  
     iret 
 .endm
@@ -18,7 +23,7 @@ isr\p:
 .macro isr_no_err_stub p
 .global isr\p
 isr\p:
-    cli
+    
      call  isr_handler  
     iret
 .endm

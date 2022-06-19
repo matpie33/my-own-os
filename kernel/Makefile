@@ -32,7 +32,7 @@ $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/descriptor_tables.o \
 kernel/interrupt_tables.o \
-kernel/exception_handler.o \
+kernel/isr_handler.o \
 kernel/interrupt_requests.o \
 kernel/irq_handler.o \
 kernel/timer.o \
