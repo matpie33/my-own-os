@@ -32,7 +32,11 @@ $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
 kernel/descriptor_tables.o \
 kernel/interrupt_tables.o \
-kernel/exception_handler.o
+kernel/exception_handler.o \
+kernel/interrupt_requests.o \
+kernel/irq_handler.o \
+kernel/timer.o \
+kernel/common.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
@@ -41,7 +45,8 @@ $(KERNEL_OBJS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 $(ARCHDIR)/gdt.o \
-$(ARCHDIR)/isr.o
+$(ARCHDIR)/isr.o \
+$(ARCHDIR)/irq.o \
 
 LINK_LIST=\
 $(LDFLAGS) \
@@ -52,7 +57,8 @@ $(LIBS) \
 $(ARCHDIR)/crtend.o \
 $(ARCHDIR)/crtn.o \
 $(ARCHDIR)/gdt.o \
-$(ARCHDIR)/isr.o
+$(ARCHDIR)/isr.o \
+$(ARCHDIR)/irq.o \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
