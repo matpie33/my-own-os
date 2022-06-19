@@ -19,7 +19,7 @@ void kernel_main(void) {
 	init_idt();
 	handleIRQs();
 	enable_interrupts();
-	init_timer(5);
+	// init_timer(50);
 	asm volatile ("int $0x03");
 	for(;;) asm("hlt");
 }

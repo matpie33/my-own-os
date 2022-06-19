@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <kernel/common.h>
 
 
-void isr_handler()
+void isr_handler(registers_t* registers)
 {
-   printf("Received interrupt. "); 
+   registers_t reg_value = registers[0];
+   printf("Received interrupt %d ", reg_value.irq_number);   
    
 }

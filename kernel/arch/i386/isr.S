@@ -15,16 +15,17 @@ enable_interrupts:
 .macro isr_err_stub p
 .global isr\p
 isr\p:
-    
-    call isr_handler  
+    push $\p
+    jmp isr_common_stub  
     iret 
 .endm
 
 .macro isr_no_err_stub p
 .global isr\p
 isr\p:
-    
-     call  isr_handler  
+    push $0
+    push $\p
+     jmp  isr_common_stub  
     iret
 .endm
 
@@ -63,4 +64,29 @@ isr_err_stub    30
 isr_no_err_stub 31
 
 
+isr_common_stub:
+   pusha                    # Pushes edi,esi,ebp,esp,ebx,edx,ecx,eax
+
+   mov %ds, %ax               # Lower 16-bits of eax = ds.
+   push %eax                 # save the data segment descriptor
+
+   mov $0x10, %ax # load the kernel data segment descriptor
+   mov %ax, %es
+   mov %ax, %fs
+   mov %ax, %ds
+   mov %ax, %gs
+
+    push %esp
+   call isr_handler
+   add $4, %esp 
+
+   pop %eax        # reload the original data segment descriptor
+   mov %ax, %ds
+   mov %ax, %es
+   mov %ax, %fs
+   mov %ax, %gs
+
+   popa                     # Pops edi,esi,ebp...
+   add $8, %esp    # Cleans up the pushed error code and pushed ISR number   
+   iret           # pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
