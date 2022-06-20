@@ -22,12 +22,12 @@ char* itoa(int integer_to_convert, char buffer[]){
         integer_to_convert *= -1;
     }
     int shifter = integer_to_convert;
-    do{ 
+    do{ //Move to where representation ends
         ++p;
         shifter = shifter/10;
     }while(shifter);
     *p = '\0';
-    do{ 
+    do{ //Move back, inserting digits as u go
         *--p = digit[integer_to_convert%10];
         integer_to_convert = integer_to_convert/10;
     }while(integer_to_convert);
@@ -75,7 +75,7 @@ int printf(const char* restrict format, ...) {
 		} else if (*format == 'd') {
 			format++;
 			int c = (int) va_arg(parameters, int);
-			char char_buffer[10];
+			char char_buffer[32];
 			char* chars = itoa(c, char_buffer);
 			if (!maxrem) {
 				// TODO: Set errno to EOVERFLOW.

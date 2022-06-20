@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <kernel/interrupt_requests.h>
+#include <kernel/common.h>
 
 void IRQ_set_mask(unsigned char IRQline) {
     uint16_t port;
@@ -29,9 +30,4 @@ void IRQ_clear_mask(unsigned char IRQline) {
     outbyte(port, value);        
 }
 
-void mask_all_IRQs(){
-  for (int8_t i =0; i< 16; i++){
-    IRQ_set_mask(i);
-  }
-  
-}
+

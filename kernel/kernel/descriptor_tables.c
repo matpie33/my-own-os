@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <kernel/descriptor_tables.h>
 
-extern void gdt_flush(u32int);
+extern void gdt_flush(uint32_t);
 
 static void init_gdt();
 static void gdt_set_gate(int32_t,uint32_t,uint32_t,uint8_t,uint8_t);

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <kernel/common.h>
 
-extern void idt_flush(u32int);
+extern void idt_flush(uint32_t);
 
 
 idt_entry idt_entries[256];
@@ -74,8 +74,8 @@ void remapPIC (){
   outbyte(0xA1, 0x02);
   outbyte(0x21, 0x01);
   outbyte(0xA1, 0x01);
-  outbyte(0x21, 0x0);
-  outbyte(0xA1, 0x0);
+  outbyte(0x21, 0xfb);
+  outbyte(0xA1, 0xff);
 }
 
 
