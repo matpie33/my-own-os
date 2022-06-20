@@ -21,6 +21,6 @@ struct gdt_pointer_struct
 } __attribute__((packed));
 typedef struct gdt_pointer_struct gdt_pointer;
 
-void init_descriptor_tables(void);
+void init_gdt();
 
 #endif
