@@ -37,6 +37,8 @@ kernel/interrupt_requests.o \
 kernel/irq_handler.o \
 kernel/timer.o \
 kernel/common.o \
+kernel/keyboard.o \
+kernel/key_press_handler.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

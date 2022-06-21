@@ -9,7 +9,7 @@ extern void idt_flush(uint32_t);
 idt_entry idt_entries[256];
 idtr_t  idt_ptr;
 
-void setIRQInterruptGates () {
+void set_IRQ_interrupt_gates () {
    idt_set_gate(32, (uint32_t)irq0, 0x08, 0x8E);
    idt_set_gate(33, (uint32_t)irq1, 0x08, 0x8E);
    idt_set_gate(34, (uint32_t)irq2, 0x08, 0x8E);
@@ -29,7 +29,7 @@ void setIRQInterruptGates () {
    
 }
 
-void setCpuInterruptGates (){
+void set_cpu_interrupt_gates (){
    idt_set_gate( 0, (uint32_t)isr0 , 0x08, 0x8E);
    idt_set_gate( 1, (uint32_t)isr1 , 0x08, 0x8E);
    idt_set_gate( 2, (uint32_t)isr2 , 0x08, 0x8E);
@@ -65,7 +65,7 @@ void setCpuInterruptGates (){
 }
 
 
-void remapPIC (){
+void remap_PIC (){
   outbyte(0x20, 0x11);
   outbyte(0xA0, 0x11);
   outbyte(0x21, 0x20);
@@ -85,9 +85,9 @@ void init_idt()
    idt_ptr.base  = (uint32_t)&idt_entries;
 
    memset(&idt_entries, 0, sizeof(idt_entry)*256);
-   setCpuInterruptGates ();
-   remapPIC ();
-   setIRQInterruptGates();
+   set_cpu_interrupt_gates ();
+   remap_PIC ();
+   set_IRQ_interrupt_gates();
    idt_flush((uint32_t)&idt_ptr);
 }
 
