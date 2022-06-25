@@ -34,7 +34,7 @@ void check_memory (multiboot_info_t* multiboot_info, unsigned int magic){
 		
 	
 	printf("Start Addr: %lli Length: %lli Size: %d Type: %d\n",
-		(long long) memory_map_pointer ->addr_low | (memory_map_pointer ->addr_high<<32), (long long)memory_map_pointer->len_low | (memory_map_pointer ->len_high <<32), memory_map_pointer->size, memory_map_pointer->type);
+		 memory_map_pointer->addr, memory_map_pointer->len, memory_map_pointer->size, memory_map_pointer->type);
 
     }
 }
