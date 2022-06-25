@@ -56,3 +56,9 @@ void terminal_write(const char* data, size_t size) {
 void terminal_writestring(const char* data) {
 	terminal_write(data, strlen(data));
 }
+
+void terminal_new_line (){
+	if (++terminal_row == VGA_HEIGHT)
+		terminal_row = 0;
+	terminal_column =0;
+}

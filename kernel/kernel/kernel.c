@@ -12,36 +12,30 @@
 
 extern void enable_interrupts();
 
-void check_memory (multiboot_info_t* mbd, unsigned int magic){
-	/* Make sure the magic number matches for memory mapping*/
+bool is_bit6_set_in_flags_variable (multiboot_info_t* mbd){
+	return mbd->flags >> 6 & 0x1;
+}
+
+void check_memory (multiboot_info_t* multiboot_info, unsigned int magic){
     if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
         printf("invalid magic number!");
     }
  
-    /* Check bit 6 to see if we have a valid memory map */
-    if(!(mbd->flags >> 6 & 0x1)) {
+    if(!is_bit6_set_in_flags_variable(multiboot_info)) {
         printf("invalid memory map given by GRUB bootloader");
     }
  
-    /* Loop through the memory map and display the values */
     int i;
-    for(i = 0; i < mbd->mmap_length; 
+    for(i = 0; i < multiboot_info->mmap_length; 
         i += sizeof(multiboot_memory_map_t)) 
     {
-        multiboot_memory_map_t* mmmt = 
-            (multiboot_memory_map_t*) (mbd->mmap_addr + i);
- 
-        printf("Start Addr: %d Length: %d Size: %d Type: %d",
-            mmmt->addr, mmmt->len, mmmt->size, mmmt->type);
- 
-        if(mmmt->type == MULTIBOOT_MEMORY_AVAILABLE) {
-            /* 
-             * Do something with this memory block!
-             * BE WARNED that some of memory shown as availiable is actually 
-             * actively being used by the kernel! You'll need to take that
-             * into account before writing to memory!
-             */
-        }
+	multiboot_memory_map_t* memory_map_pointer = 
+		(multiboot_memory_map_t*) (multiboot_info->mmap_addr + i);
+		
+	
+	printf("Start Addr: %lli Length: %lli Size: %d Type: %d\n",
+		(long long) memory_map_pointer ->addr_low | (memory_map_pointer ->addr_high<<32), (long long)memory_map_pointer->len_low | (memory_map_pointer ->len_high <<32), memory_map_pointer->size, memory_map_pointer->type);
+
     }
 }
 
