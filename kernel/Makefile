@@ -39,6 +39,8 @@ kernel/timer.o \
 kernel/common.o \
 kernel/keyboard.o \
 kernel/key_press_handler.o \
+kernel/memory_detecting.o \
+kernel/physical_memory_manager.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

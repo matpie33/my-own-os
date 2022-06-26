@@ -7,48 +7,36 @@
 #include <stdint.h>
 #include <kernel/keyboard.h>
 #include <kernel/key_press_handler.h>
-#include <stdbool.h>
 #include <kernel/multiboot.h>
+#include <kernel/memory_detecting.h>
+#include <kernel/physical_memory_manager.h>
+
+
 
 extern void enable_interrupts();
 
-bool is_bit6_set_in_flags_variable (multiboot_info_t* mbd){
-	return mbd->flags >> 6 & 0x1;
+void memory_test (){
+	uint8_t* memory = allocate_block();
+	for (int i=0; i<4096; i++){
+		memory[i] = 2138921;
+	}
+	free_block((void*)memory);
+	uint8_t* memory3 = allocate_block();
 }
 
-void check_memory (multiboot_info_t* multiboot_info, unsigned int magic){
-    if(magic != MULTIBOOT_BOOTLOADER_MAGIC) {
-        printf("invalid magic number!");
-    }
- 
-    if(!is_bit6_set_in_flags_variable(multiboot_info)) {
-        printf("invalid memory map given by GRUB bootloader");
-    }
- 
-    int i;
-    for(i = 0; i < multiboot_info->mmap_length; 
-        i += sizeof(multiboot_memory_map_t)) 
-    {
-	multiboot_memory_map_t* memory_map_pointer = 
-		(multiboot_memory_map_t*) (multiboot_info->mmap_addr + i);
-		
-	
-	printf("Start Addr: %lli Length: %lli Size: %d Type: %d\n",
-		 memory_map_pointer->addr, memory_map_pointer->len, memory_map_pointer->size, memory_map_pointer->type);
-
-    }
-}
-
-void kernel_main(multiboot_info_t* mbd, unsigned int magic) {
+void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	terminal_initialize();
 	init_gdt();
 	init_idt();
 	IRQ_clear_mask(2);
+	memory_info memory_info = detect_memory(mbd, magic);
+	initialize(memory_info);
+	memory_test();
 	init_keyboard();
 	enable_interrupts();
 	set_display_pressed_keys_on_screen(true);
-	check_memory (mbd, magic);
 	// init_timer(50);
 	asm volatile ("int $0x03");
 	for(;;) asm("hlt");
 }
+
