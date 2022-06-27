@@ -4,6 +4,7 @@
 #include <kernel/physical_memory_manager.h>
 #include <stdio.h>
 #include <kernel/memory_detecting.h>
+#include <kernel/common.h>
 
 bool is_bit6_set_in_flags_variable (multiboot_info_t* mbd){
 	return mbd->flags >> 6 & 0x1;
@@ -45,8 +46,9 @@ memory_info detect_memory (multiboot_info_t* multiboot_info, uint32_t magic){
                 address++;
                 length--;
             }
-            if (!is_memory_for_free_regions_reserved && length > bytes_for_memory_regions_array){
-                memory_region* memory_regions = address;
+            if (!is_memory_for_free_regions_reserved && length > bytes_for_memory_regions_array && address < GIGABYTE){
+                uint32_t address_casted = (uint32_t) address;
+                memory_region* memory_regions = (memory_region*)address_casted;
                 printf("memory regions array is in: %d\n", memory_regions);
                 memory_info.free_memory_regions = memory_regions;
                 address += bytes_for_memory_regions_array;

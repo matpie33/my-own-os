@@ -3,6 +3,7 @@
 #include <kernel/physical_memory_manager.h>
 #include <string.h>
 #include <stdio.h>
+#include <kernel/common.h>
 
 static uint32_t memory_size_in_kb = 0;
 static uint32_t used_blocks = 0;
@@ -114,7 +115,10 @@ void initialize (memory_info memory_info) {
 	for (uint32_t i=0; i<memory_info.number_of_free_regions; i++){
 		memory_region region = memory_info.free_memory_regions[i];
 		if (region.length > number_of_ints_in_bitmap){
-			memory_bitmap = region.address;
+			if (region.address < GIGABYTE){
+				uint32_t address = (uint32_t) region.address;
+				memory_bitmap = (uint32_t*)address;
+			}
 			uint64_t bytes_used_for_bitmap = total_blocks/BLOCKS_PER_BYTE;
 			printf("memory bitmap address: %d size %lli\n", (uint32_t)memory_bitmap, bytes_used_for_bitmap);
 			region.address += bytes_used_for_bitmap;

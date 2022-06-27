@@ -18,10 +18,10 @@ extern void enable_interrupts();
 void memory_test (){
 	uint8_t* memory = allocate_block();
 	for (int i=0; i<4096; i++){
-		memory[i] = 2138921;
+		memory[i] = (uint8_t)2138921;
 	}
 	free_block((void*)memory);
-	uint8_t* memory3 = allocate_block();
+	allocate_block();
 }
 
 void kernel_main(multiboot_info_t* mbd, uint32_t magic) {

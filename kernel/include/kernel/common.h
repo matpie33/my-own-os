@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#define GIGABYTE 4294967296
+
 typedef struct registers
 {
    uint32_t ds;                  // Data segment selector
