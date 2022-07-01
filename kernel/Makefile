@@ -41,6 +41,8 @@ kernel/keyboard.o \
 kernel/key_press_handler.o \
 kernel/memory_detecting.o \
 kernel/physical_memory_manager.o \
+kernel/paging.o \
+kernel/math.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \
@@ -51,6 +53,7 @@ $(ARCHDIR)/crtn.o \
 $(ARCHDIR)/gdt.o \
 $(ARCHDIR)/isr.o \
 $(ARCHDIR)/irq.o \
+$(ARCHDIR)/paging.o \
 
 LINK_LIST=\
 $(LDFLAGS) \
@@ -63,6 +66,7 @@ $(ARCHDIR)/crtn.o \
 $(ARCHDIR)/gdt.o \
 $(ARCHDIR)/isr.o \
 $(ARCHDIR)/irq.o \
+$(ARCHDIR)/paging.o \
 
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S

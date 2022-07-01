@@ -81,7 +81,7 @@ int printf(const char* restrict format, ...) {
 			written++;
 		} else if (*format == 'd') {
 			format++;
-			int c = (int) va_arg(parameters,  int);
+			uint32_t c = (uint32_t) va_arg(parameters,  uint32_t);
 			char char_buffer[32];
 			char* chars = itoa((long long)c, char_buffer);
 			if (!maxrem) {

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <kernel/common.h>
+#include <kernel/math.h>
 
 static uint32_t memory_size_in_kb = 0;
 static uint32_t used_blocks = 0;
@@ -43,10 +44,36 @@ int32_t get_first_free_block_index () {
 	return -1;
 }
 
-
-uint32_t divide_round_up (uint32_t a, uint32_t b){
-	return (a + b-1)/b;
+int32_t get_multiple_contiguos_free_blocks (uint32_t number_of_blocks) {
+ 
+	int32_t starting_index = -1;
+	int32_t last_index_found = -1;
+	int32_t blocks_left_to_find = number_of_blocks;
+	for (uint32_t i=0; i< total_blocks / BLOCKS_PER_INT; i++)
+		if (memory_bitmap[i] != ALL_BITS_IN_INT_ARE_TAKEN){
+			for (int32_t j=0; j< BLOCKS_PER_INT; j++) {		
+ 
+				int32_t bit = 1 << j;
+				int32_t current_frame = i*BLOCKS_PER_INT+j;
+				if (! is_bit_set_in_array_element(bit, i) ){
+					if (starting_index == -1 || last_index_found +1 !=current_frame){
+						starting_index = current_frame;
+						blocks_left_to_find = number_of_blocks;
+					}
+					blocks_left_to_find--;
+					last_index_found = current_frame;
+					if (blocks_left_to_find ==0){
+						return starting_index;
+					}
+				}
+			}
+        }
+ 
+	return -1;
 }
+
+
+
 
 void init_free_region (uint64_t base_address, uint64_t size) {
  
@@ -93,6 +120,39 @@ void* allocate_block () {
 	used_blocks++;
 	printf ("allocated address %d\n", addr);
 	return (void*)addr;
+}
+
+void* allocate_blocks(uint32_t number_of_blocks) {
+ 
+	if (get_free_block_count() <= 0)
+		return 0;	
+ 
+	int32_t block_index = get_multiple_contiguos_free_blocks (number_of_blocks);
+ 
+	if (block_index == -1)
+		return 0;	
+ 
+	for (uint32_t i=0; i<number_of_blocks; i++){
+		memory_map_set_bit (block_index + i);
+		used_blocks++;
+	}
+ 
+	uint32_t addr = block_index * BLOCKS_SIZE;
+	
+	printf ("allocated address %d for n = %d blocks\n", addr, number_of_blocks);
+	return (void*)addr;
+}
+
+void free_blocks (void* p, uint32_t number_of_blocks) {
+ 
+	uint32_t addr = (uint32_t)p;
+	uint32_t block = addr / BLOCKS_SIZE;
+
+	for (uint32_t i=0; i< number_of_blocks; i++){
+		memory_map_unset_bit (block);
+		used_blocks--;
+	}
+ 
 }
 
 void free_block (void* p) {

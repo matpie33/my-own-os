@@ -10,6 +10,7 @@
 #include <kernel/multiboot.h>
 #include <kernel/memory_detecting.h>
 #include <kernel/physical_memory_manager.h>
+#include <kernel/paging.h>
 
 
 
@@ -24,6 +25,8 @@ void memory_test (){
 	allocate_block();
 }
 
+
+
 void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	terminal_initialize();
 	init_gdt();
@@ -35,6 +38,9 @@ void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	init_keyboard();
 	enable_interrupts();
 	set_display_pressed_keys_on_screen(true);
+	set_up_paging();
+	printf("paging done");
+
 	// init_timer(50);
 	asm volatile ("int $0x03");
 	for(;;) asm("hlt");

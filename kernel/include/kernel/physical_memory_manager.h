@@ -27,6 +27,8 @@ void initialize (memory_info memory_info);
 
 void* allocate_block ();
 void free_block (void* p) ;
+void* allocate_blocks(uint32_t number_of_blocks);
+void free_blocks (void* p, uint32_t number_of_blocks);
 
 
 #endif
