@@ -20,6 +20,10 @@
 #define SET_FRAME(pte,address) ((pte) | (address) )
 #define GET_FRAME(pte) ((pte) & 0xFFFFF000)
 
+#define RECURSIVELY_MAPPED_PAGE_DIRECTORY_INDEX 1023
+
+#define VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 0xffc00000
+
 
 #define PAGE_SIZE 4096
 
@@ -44,5 +48,6 @@ enum PTE_BIT_NUMBERS {
 };
 uint32_t get_frame (uint32_t pte);
 void set_up_paging ();
+void map_page (uint32_t physical_addr, uint32_t virtual_address) ;
 
 #endif

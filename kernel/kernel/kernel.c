@@ -38,8 +38,13 @@ void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	init_keyboard();
 	enable_interrupts();
 	set_display_pressed_keys_on_screen(true);
+	
+
 	set_up_paging();
+	map_page(0x4FF000, 0xC0400000);
+
 	printf("paging done");
+	
 
 	// init_timer(50);
 	asm volatile ("int $0x03");

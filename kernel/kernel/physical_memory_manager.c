@@ -118,7 +118,6 @@ void* allocate_block () {
  
 	uint32_t addr = block_index * BLOCKS_SIZE;
 	used_blocks++;
-	printf ("allocated address %d\n", addr);
 	return (void*)addr;
 }
 
@@ -175,7 +174,7 @@ void initialize (memory_info memory_info) {
 	for (uint32_t i=0; i<memory_info.number_of_free_regions; i++){
 		memory_region region = memory_info.free_memory_regions[i];
 		if (region.length > number_of_ints_in_bitmap){
-			if (region.address < GIGABYTE){
+			if (region.address < FOUR_GIGABYTE){
 				uint32_t address = (uint32_t) region.address;
 				memory_bitmap = (uint32_t*)address;
 			}

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <kernel/math.h>
 #include <stdio.h>
+#include <kernel/memory_detecting.h>
 
 uint32_t* current_directory = 0;
 
@@ -66,86 +67,80 @@ uint32_t* get_directory () {
 	return current_directory;
 }
 
+void allocate_page_for_table (uint32_t table_virtual_address){
+	uint32_t table_physical_address = (uint32_t) allocate_block();
+	pt_entry page_directory_entry_for_table_address = current_directory[PAGE_TABLE_INDEX(table_virtual_address)];
+	page_directory_entry_for_table_address = SET_FRAME(page_directory_entry_for_table_address, (physical_address)table_physical_address);
+	page_directory_entry_for_table_address = SET_BIT(page_directory_entry_for_table_address, IS_PRESENT);
+	current_directory[PAGE_TABLE_INDEX(table_virtual_address)] = page_directory_entry_for_table_address;
+	flush_tlb_entry((uint32_t*)table_virtual_address);
+}
 
-void map_page (void* physical_addr, void* virtual_address) {
+
+void map_page (uint32_t physical_addr, uint32_t virtual_address) {
 
 
-   pd_entry entry = current_directory[PAGE_DIRECTORY_INDEX ((uint32_t) virtual_address) ];
-   if ( !IS_BIT_SET(entry, IS_PRESENT)) {
-        uint32_t* table = (uint32_t*) allocate_block();
-        if (!table){
-            return;
-        }
+	pd_entry page_directory_entry = current_directory[PAGE_DIRECTORY_INDEX (virtual_address) ];
+	uint32_t table_virtual_address = VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 + PAGE_DIRECTORY_INDEX( virtual_address)*PAGE_SIZE;
+	if (!IS_BIT_SET(page_directory_entry, IS_PRESENT)){
+		allocate_page_for_table(table_virtual_address);
+	}
+	
+	uint32_t* table = (uint32_t*)table_virtual_address ;
+	pt_entry table_entry = table[ PAGE_TABLE_INDEX ( (uint32_t) virtual_address) ];
+	table_entry = SET_FRAME(table_entry, (physical_address)physical_addr);
+	table_entry = SET_BIT(table_entry, IS_PRESENT);
+	table[PAGE_TABLE_INDEX (virtual_address)] = table_entry;
+	flush_tlb_entry((uint32_t*)virtual_address);
+}
 
-        memset (table, 0, PAGES_PER_TABLE * sizeof(uint32_t));
-        entry = SET_BIT(entry, IS_PRESENT);
-        entry = SET_BIT(entry, IS_WRITABLE);
-        entry = SET_FRAME(entry, (physical_address) table);
+uint32_t* allocate_block_for_page_table (){
+	uint32_t* page_table = (uint32_t*) allocate_block();
+	if (!page_table){
+		return 0;
+	}
+    memset(page_table, 0, PAGES_PER_TABLE* sizeof(uint32_t));
+	return page_table;
+}
 
-   }
-    uint32_t* page_table = (uint32_t*) GET_FRAME ( entry );
-    pt_entry page = page_table [ PAGE_TABLE_INDEX ( (uint32_t) virtual_address) ];
-    page = SET_FRAME(page, (physical_address)physical_addr);
-    page = SET_BIT(page, IS_PRESENT);
+void map_range_of_virtual_to_physical_addresses (uint32_t physical_address, uint32_t virtual_address, uint32_t* table){
+	for (uint32_t i=0; i<PAGES_PER_TABLE; i++) {
+
+		pt_entry table_entry=0;
+		table_entry = SET_BIT (table_entry, IS_PRESENT);
+ 		table_entry = SET_FRAME (table_entry, physical_address);
+
+		table[PAGE_TABLE_INDEX (virtual_address) ] = table_entry;
+		physical_address += BLOCKS_SIZE;
+		virtual_address += BLOCKS_SIZE;
+	}
+}
+
+void map_pd_entry_to_page_table (uint32_t* table_address, uint32_t page_directory_index, uint32_t* page_directory){
+	uint32_t pd_entry = 0;
+	pd_entry = SET_BIT (pd_entry, IS_PRESENT);
+	pd_entry= SET_BIT (pd_entry, IS_WRITABLE);
+	pd_entry = SET_FRAME (pd_entry, (physical_address)table_address);
+	page_directory[page_directory_index]= pd_entry;
 }
 
 void set_up_paging () {
- 
-	uint32_t* default_page_table = (uint32_t*) allocate_block ();
-	if (!default_page_table)
-		return;
- 
-	uint32_t* kernel_page_table = (uint32_t*) allocate_block ();
-	if (!kernel_page_table)
-		return;
 
-	memset(default_page_table, 0, PAGES_PER_TABLE*4);
-	memset(kernel_page_table, 0, PAGES_PER_TABLE*4);
-
-    for (uint32_t i=0, frame=0x0, virtual=0x00000000; i<1024; i++, frame+=4096, virtual+=4096) {
-
-		pt_entry page=0;
-		page = SET_BIT (page, IS_PRESENT);
- 		page = SET_FRAME (page, frame);
-
-		default_page_table[PAGE_TABLE_INDEX (virtual) ] = page;
-	}
-
-    for (uint32_t i=0, frame=0x100000, virtual=0xc0000000; i<1024; i++, frame+=4096, virtual+=4096) {
-
-		pt_entry page=0;
-		page = SET_BIT (page, IS_PRESENT);
-		page = SET_FRAME (page, frame);
-
-		kernel_page_table[PAGE_TABLE_INDEX (virtual) ] = page;
-	}
-    uint32_t* page_dir = (uint32_t*) allocate_blocks(divide_round_up(4 * PAGE_TABLES_PER_DIRECTORY, BLOCKS_SIZE));
+    uint32_t* page_dir = (uint32_t*) allocate_blocks(divide_round_up(sizeof(uint32_t) * PAGE_TABLES_PER_DIRECTORY, BLOCKS_SIZE));
     if (!page_dir){
         return;
     }
     memset(page_dir, 0, PAGE_TABLES_PER_DIRECTORY*4);
 
-    uint32_t pd_entry = 0;
-	pd_entry = SET_BIT (pd_entry, IS_PRESENT);
-	pd_entry= SET_BIT (pd_entry, IS_WRITABLE);
-	pd_entry = SET_FRAME (pd_entry, (physical_address)page_dir);
-	page_dir[1023]= pd_entry;
-	printf(" pd entry address: %d ", GET_FRAME(pd_entry));
-
-	uint32_t default_entry = 0;
-	default_entry = SET_BIT (default_entry, IS_PRESENT);
-	default_entry= SET_BIT (default_entry, IS_WRITABLE);
-	default_entry = SET_FRAME (default_entry, (physical_address)default_page_table);
-	page_dir[PAGE_DIRECTORY_INDEX(0) ] = default_entry;
-	printf(" default entry address: %d", GET_FRAME(default_entry));
-
-
-	uint32_t kernel_entry = 0;
-	kernel_entry = SET_BIT (kernel_entry, IS_PRESENT);
-	kernel_entry= SET_BIT (kernel_entry, IS_WRITABLE);
-	kernel_entry = SET_FRAME (kernel_entry, (physical_address)kernel_page_table);
-	page_dir[PAGE_DIRECTORY_INDEX(0xc0000000)] = kernel_entry;
-	printf(" kernel entry address: %d", GET_FRAME(kernel_entry));
+    uint32_t* default_page_table = allocate_block_for_page_table();
+    uint32_t* kernel_page_table = allocate_block_for_page_table();
+ 
+	map_range_of_virtual_to_physical_addresses(0, 0, default_page_table);
+	map_range_of_virtual_to_physical_addresses(KERNEL_LOCATION_START, KERNEL_VIRTUAL_ADDRESS_START, kernel_page_table);  
+    
+	map_pd_entry_to_page_table (page_dir, RECURSIVELY_MAPPED_PAGE_DIRECTORY_INDEX, page_dir);
+	map_pd_entry_to_page_table (default_page_table, 0, page_dir);
+	map_pd_entry_to_page_table (kernel_page_table, PAGE_DIRECTORY_INDEX(KERNEL_VIRTUAL_ADDRESS_START), page_dir);
 
 	switch_page_directory (page_dir);
  

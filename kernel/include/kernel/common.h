@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define GIGABYTE 4294967296
+#define FOUR_GIGABYTE 4294967296
 
 typedef struct registers
 {
