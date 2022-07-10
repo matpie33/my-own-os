@@ -2,32 +2,38 @@
 #include <kernel/interrupt_requests.h>
 #include <kernel/common.h>
 
-void IRQ_set_mask(unsigned char IRQline) {
+void IRQ_set_mask(unsigned char IRQline)
+{
     uint16_t port;
     uint8_t value;
- 
-    if(IRQline < 8) {
-        port = PIC1_DATA; 
-    } else {
+
+    if (IRQline < 8)
+    {
+        port = PIC1_DATA;
+    }
+    else
+    {
         port = PIC2_DATA;
         IRQline -= 8;
     }
     value = inbyte(port) | (1 << IRQline);
-    outbyte(port, value);        
+    outbyte(port, value);
 }
- 
-void IRQ_clear_mask(unsigned char IRQline) {
+
+void IRQ_clear_mask(unsigned char IRQline)
+{
     uint16_t port;
     uint8_t value;
- 
-    if(IRQline < 8) {
+
+    if (IRQline < 8)
+    {
         port = PIC1_DATA;
-    } else {
+    }
+    else
+    {
         port = PIC2_DATA;
         IRQline -= 8;
     }
     value = inbyte(port) & ~(1 << IRQline);
-    outbyte(port, value);        
+    outbyte(port, value);
 }
-
-

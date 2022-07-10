@@ -13,24 +13,25 @@
 #include <kernel/virtual_memory_manager.h>
 #include <kernel/heap.h>
 
-
-
 extern void enable_interrupts();
 
-void memory_test (){
-	uint8_t* memory = allocate_block();
-	for (int i=0; i<4096; i++){
+void memory_test()
+{
+	uint8_t *memory = allocate_block();
+	for (int i = 0; i < 4096; i++)
+	{
 		memory[i] = (uint8_t)2138921;
 	}
-	free_block((void*)memory);
+	free_block((void *)memory);
 	allocate_block();
 }
 
-void memory_test_1 (){
-	void* first = kmalloc(15);
-	void* second = kmalloc (5);
-	void* third = kmalloc (5);
-	kfree((uint32_t) first, 15);
+void memory_test_1()
+{
+	void *first = kmalloc(15);
+	void *second = kmalloc(5);
+	void *third = kmalloc(5);
+	kfree((uint32_t)first, 15);
 	printf("after freeing first\n");
 	print_free_regions();
 	kfree((uint32_t)third, 5);
@@ -41,7 +42,8 @@ void memory_test_1 (){
 	print_free_regions();
 }
 
-void memory_test_2 (){
+void memory_test_2()
+{
 	kmalloc(100000);
 	printf("after malloc 100000: ");
 	print_free_regions();
@@ -50,7 +52,8 @@ void memory_test_2 (){
 	print_free_regions();
 }
 
-void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
+void kernel_main(multiboot_info_t *mbd, uint32_t magic)
+{
 	terminal_initialize();
 	init_gdt();
 	init_idt();
@@ -67,9 +70,8 @@ void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	memory_test_2();
 
 	printf("paging done");
-	
 
 	// init_timer(50);
-	for(;;) asm("hlt");
+	for (;;)
+		asm("hlt");
 }
-

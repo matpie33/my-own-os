@@ -8,7 +8,7 @@
 #define KEY_PRESSED 1
 #define KEY_NOT_PRESSED 0
 
-void handle_key (uint8_t scancode);
-void set_display_pressed_keys_on_screen (bool display);
+void handle_key(uint8_t scancode);
+void set_display_pressed_keys_on_screen(bool display);
 
 #endif

@@ -12,6 +12,6 @@
 
 #define KERNEL_VIRTUAL_ADDRESS_START 0xc0000000
 
-memory_info detect_memory (multiboot_info_t* multiboot_info, uint32_t magic);
+memory_info detect_memory(multiboot_info_t *multiboot_info, uint32_t magic);
 
 #endif
