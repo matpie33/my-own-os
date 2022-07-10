@@ -61,16 +61,11 @@ memory_info detect_memory (multiboot_info_t* multiboot_info, uint32_t magic){
 		    memory_info.free_memory_regions[j].length = length;
             j++;
         }
-		printf("Start Addr: %lli Length: %lli Size: %d Type: %d\n",
-			address, length, memory_map_pointer->size, memory_map_pointer->type);
 
     }
     memory_info.number_of_free_regions = j;
 	memory_info.memory_size = memory_size;
 	printf("memory size: %lli\n", memory_size);
 
-    for (uint32_t i=0; i< memory_info.number_of_free_regions; i++){
-        printf ("free region: addr %lli length %lli\n", memory_info.free_memory_regions[i].address, memory_info.free_memory_regions[i].length);
-    }
     return memory_info;
 }

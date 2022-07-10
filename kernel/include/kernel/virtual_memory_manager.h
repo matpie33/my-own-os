@@ -3,16 +3,13 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <kernel/heap.h>
 
 #define PAGES_PER_TABLE 1024
 #define PAGE_TABLES_PER_DIRECTORY	1024
 
 #define PAGE_DIRECTORY_INDEX(x) (((x) >> 22) & 0x3ff)	
 #define PAGE_TABLE_INDEX(x) (((x) >> 12) & 0x3ff)
-
-#define PAGE_TABLE_ADDRESS_SPACE_SIZE 0x400000
-
-#define DIRECTORY_TABLE_ADDRESS_SPACE_SIZE 0x100000000
 
 #define SET_BIT(pte,bit) ((pte) | (1 << (bit) ))
 #define UNSET_BIT(pte,bit) ((pte) & ~(1 << (bit) ))
@@ -24,14 +21,19 @@
 
 #define VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 0xffc00000
 
+#define FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS 0x400000
+
+#define KERNEL_IMAGE_SIZE 16777216
 
 #define PAGE_SIZE 4096
+#define VIRTUAL_MEMORY_LIMIT_32_BIT 0xFFFFFFFF
 
 typedef uint32_t pt_entry;
 typedef uint32_t pd_entry;
 
 typedef uint32_t virtual_address;
 typedef uint32_t physical_address;
+
 
 enum PTE_BIT_NUMBERS {
  
@@ -46,8 +48,18 @@ enum PTE_BIT_NUMBERS {
 	CPU_GLOBAL		=	8,		
 	LV4_GLOBAL		=	9,		
 };
-uint32_t get_frame (uint32_t pte);
+
+typedef struct free_pages_region_info{
+
+	uint32_t address;
+	uint32_t number_of_pages;
+	struct free_pages_region_info*  address_of_next_region_info;
+
+
+} free_pages_region_info_t;
+
 void set_up_paging ();
-void map_page (uint32_t physical_addr, uint32_t virtual_address) ;
+uint32_t* allocate_pages (uint32_t number_of_pages);
+free_region_info_t* allocate_pages_for_heap ();
 
 #endif

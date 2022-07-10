@@ -41,8 +41,9 @@ kernel/keyboard.o \
 kernel/key_press_handler.o \
 kernel/memory_detecting.o \
 kernel/physical_memory_manager.o \
-kernel/paging.o \
+kernel/virtual_memory_manager.o \
 kernel/math.o \
+kernel/heap.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

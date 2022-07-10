@@ -77,8 +77,8 @@ int32_t get_multiple_contiguos_free_blocks (uint32_t number_of_blocks) {
 
 void init_free_region (uint64_t base_address, uint64_t size) {
  
-	uint64_t block_index = divide_round_up(base_address, BLOCKS_SIZE);
-	uint64_t number_of_blocks = divide_round_up(size, BLOCKS_SIZE);
+	uint64_t block_index = divide_round_up(base_address, BLOCK_SIZE);
+	uint64_t number_of_blocks = divide_round_up(size, BLOCK_SIZE);
 	printf("initializing free region address: %lli, number of blocks: %lli\n",  base_address, number_of_blocks);
  
 	for (; number_of_blocks>0; number_of_blocks--) {
@@ -91,8 +91,8 @@ void init_free_region (uint64_t base_address, uint64_t size) {
 
 void init_reserved_region (uint32_t base_address, uint32_t size) {
  
-	uint32_t block_index = divide_round_up(base_address ,BLOCKS_SIZE);
-	uint32_t number_of_blocks = divide_round_up(size ,BLOCKS_SIZE);
+	uint32_t block_index = divide_round_up(base_address ,BLOCK_SIZE);
+	uint32_t number_of_blocks = divide_round_up(size ,BLOCK_SIZE);
  
 	for (; number_of_blocks>0; number_of_blocks--) {
 		memory_map_set_bit (block_index++);
@@ -116,7 +116,7 @@ void* allocate_block () {
  
 	memory_map_set_bit (block_index);
  
-	uint32_t addr = block_index * BLOCKS_SIZE;
+	uint32_t addr = block_index * BLOCK_SIZE;
 	used_blocks++;
 	return (void*)addr;
 }
@@ -136,7 +136,7 @@ void* allocate_blocks(uint32_t number_of_blocks) {
 		used_blocks++;
 	}
  
-	uint32_t addr = block_index * BLOCKS_SIZE;
+	uint32_t addr = block_index * BLOCK_SIZE;
 	
 	printf ("allocated address %d for n = %d blocks\n", addr, number_of_blocks);
 	return (void*)addr;
@@ -145,7 +145,7 @@ void* allocate_blocks(uint32_t number_of_blocks) {
 void free_blocks (void* p, uint32_t number_of_blocks) {
  
 	uint32_t addr = (uint32_t)p;
-	uint32_t block = addr / BLOCKS_SIZE;
+	uint32_t block = addr / BLOCK_SIZE;
 
 	for (uint32_t i=0; i< number_of_blocks; i++){
 		memory_map_unset_bit (block);
@@ -157,7 +157,7 @@ void free_blocks (void* p, uint32_t number_of_blocks) {
 void free_block (void* p) {
  
 	uint32_t addr = (uint32_t)p;
-	uint32_t block = addr / BLOCKS_SIZE;
+	uint32_t block = addr / BLOCK_SIZE;
  
 	memory_map_unset_bit (block);
  
@@ -167,7 +167,7 @@ void free_block (void* p) {
 void initialize (memory_info memory_info) {
  
 	memory_size_in_kb	=	memory_info.memory_size;
-	total_blocks	=	memory_info.memory_size  / BLOCKS_SIZE;
+	total_blocks	=	memory_info.memory_size  / BLOCK_SIZE;
 	used_blocks	=	total_blocks;
 	uint32_t number_of_ints_in_bitmap = total_blocks / BLOCKS_PER_INT;
 	

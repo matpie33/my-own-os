@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define BLOCKS_PER_BYTE 8
-#define BLOCKS_SIZE 4096
+#define BLOCK_SIZE 4096
 #define BLOCK_ALIGNMENT BLOCK_SIZE
 
 #define ALL_BITS_IN_INT_ARE_TAKEN 0xFFFFFFFF

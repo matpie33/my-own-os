@@ -10,7 +10,8 @@
 #include <kernel/multiboot.h>
 #include <kernel/memory_detecting.h>
 #include <kernel/physical_memory_manager.h>
-#include <kernel/paging.h>
+#include <kernel/virtual_memory_manager.h>
+#include <kernel/heap.h>
 
 
 
@@ -25,7 +26,29 @@ void memory_test (){
 	allocate_block();
 }
 
+void memory_test_1 (){
+	void* first = kmalloc(15);
+	void* second = kmalloc (5);
+	void* third = kmalloc (5);
+	kfree((uint32_t) first, 15);
+	printf("after freeing first\n");
+	print_free_regions();
+	kfree((uint32_t)third, 5);
+	printf("after freeing third\n");
+	print_free_regions();
+	kfree((uint32_t)second, 5);
+	printf("after freeing second\n");
+	print_free_regions();
+}
 
+void memory_test_2 (){
+	kmalloc(100000);
+	printf("after malloc 100000: ");
+	print_free_regions();
+	kmalloc(3000);
+	printf("after malloc 3000 free regions");
+	print_free_regions();
+}
 
 void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	terminal_initialize();
@@ -38,16 +61,15 @@ void kernel_main(multiboot_info_t* mbd, uint32_t magic) {
 	init_keyboard();
 	enable_interrupts();
 	set_display_pressed_keys_on_screen(true);
-	
 
 	set_up_paging();
-	map_page(0x4FF000, 0xC0400000);
+	set_up_heap();
+	memory_test_2();
 
 	printf("paging done");
 	
 
 	// init_timer(50);
-	asm volatile ("int $0x03");
 	for(;;) asm("hlt");
 }
 
