@@ -19,30 +19,30 @@ uint32_t next_free_address_for_heap = KERNEL_VIRTUAL_ADDRESS_START + KERNEL_IMAG
 
 void allocate_page_for_table(uint32_t table_virtual_address)
 {
-	uint32_t table_physical_address = (uint32_t)allocate_block();
+	physical_address table_physical_address = (physical_address)allocate_block();
 	pt_entry page_directory_entry_for_table_address = current_directory[PAGE_TABLE_INDEX(table_virtual_address)];
-	page_directory_entry_for_table_address = SET_FRAME(page_directory_entry_for_table_address, (physical_address)table_physical_address);
+	page_directory_entry_for_table_address = SET_FRAME(page_directory_entry_for_table_address, table_physical_address);
 	page_directory_entry_for_table_address = SET_BIT(page_directory_entry_for_table_address, IS_PRESENT);
 	current_directory[PAGE_TABLE_INDEX(table_virtual_address)] = page_directory_entry_for_table_address;
 	flush_tlb_entry((uint32_t *)table_virtual_address);
 }
 
-void map_page(uint32_t physical_addr, uint32_t virtual_address)
+void map_page(physical_address physical_addr, virtual_address virtual_addr)
 {
 
-	pd_entry page_directory_entry = current_directory[PAGE_DIRECTORY_INDEX(virtual_address)];
-	uint32_t table_virtual_address = VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 + PAGE_DIRECTORY_INDEX(virtual_address) * PAGE_SIZE;
+	pd_entry page_directory_entry = current_directory[PAGE_DIRECTORY_INDEX(virtual_addr)];
+	virtual_address table_virtual_address = VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 + PAGE_DIRECTORY_INDEX(virtual_addr) * PAGE_SIZE;
 	if (!IS_BIT_SET(page_directory_entry, IS_PRESENT))
 	{
 		allocate_page_for_table(table_virtual_address);
 	}
 
 	uint32_t *table = (uint32_t *)table_virtual_address;
-	pt_entry table_entry = table[PAGE_TABLE_INDEX((uint32_t)virtual_address)];
-	table_entry = SET_FRAME(table_entry, (physical_address)physical_addr);
+	pt_entry table_entry = table[PAGE_TABLE_INDEX((uint32_t)virtual_addr)];
+	table_entry = SET_FRAME(table_entry, physical_addr);
 	table_entry = SET_BIT(table_entry, IS_PRESENT);
-	table[PAGE_TABLE_INDEX(virtual_address)] = table_entry;
-	flush_tlb_entry((uint32_t *)virtual_address);
+	table[PAGE_TABLE_INDEX(virtual_addr)] = table_entry;
+	flush_tlb_entry((uint32_t *)virtual_addr);
 }
 
 uint32_t *allocate_pages(uint32_t number_of_pages)
@@ -54,7 +54,7 @@ uint32_t *allocate_pages(uint32_t number_of_pages)
 	{
 		if (address_of_free_space->number_of_pages > number_of_pages)
 		{
-			uint32_t first_block_address = (uint32_t)allocate_blocks(number_of_pages);
+			physical_address first_block_address = (physical_address)allocate_blocks(number_of_pages);
 			virtual_address = (uint32_t *)address_of_free_space->address;
 			for (uint32_t j = 0; j < number_of_pages; j++)
 			{
@@ -71,10 +71,10 @@ uint32_t *allocate_pages(uint32_t number_of_pages)
 	return 0;
 }
 
-void unmap_page(uint32_t virtual_address)
+void unmap_page(virtual_address virtual_address)
 {
 	uint32_t *table = (uint32_t *)(VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 + PAGE_DIRECTORY_INDEX(virtual_address) * PAGE_SIZE);
-	uint32_t frame_address = GET_FRAME(table[PAGE_TABLE_INDEX(virtual_address)]);
+	physical_address frame_address = GET_FRAME(table[PAGE_TABLE_INDEX(virtual_address)]);
 	printf("freeing block: %d", frame_address);
 	free_block((void *)frame_address);
 	table[PAGE_TABLE_INDEX(virtual_address)] = 0;
@@ -111,7 +111,7 @@ uint32_t *allocate_block_for_page_table()
 	return page_table;
 }
 
-void identity_map_first_4_megabyte(uint32_t physical_address, uint32_t virtual_address, uint32_t *table)
+void identity_map_first_4_megabyte(physical_address physical_address, virtual_address virtual_address, uint32_t *table)
 {
 	for (uint32_t i = 0; i < PAGES_PER_TABLE; i++)
 	{
@@ -135,11 +135,11 @@ void map_pd_entry_to_page_table(uint32_t *table_address, uint32_t page_directory
 	page_directory[page_directory_index] = pd_entry;
 }
 
-void map_kernel_to_3_gb(uint32_t physical_address, uint32_t virtual_address, uint32_t *page_dir)
+void map_kernel_to_3_gb(physical_address physical_address, virtual_address virtual_address, uint32_t *page_dir)
 {
 	for (uint32_t i = 0; i < KERNEL_IMAGE_SIZE / (PAGES_PER_TABLE * PAGE_SIZE); i++)
 	{
-		uint32_t *table_physical_address = allocate_block_for_page_table();
+		uint32_t *table_physical_and_virtual_address = allocate_block_for_page_table();
 		for (uint32_t i = 0; i < PAGES_PER_TABLE; i++)
 		{
 
@@ -147,11 +147,11 @@ void map_kernel_to_3_gb(uint32_t physical_address, uint32_t virtual_address, uin
 			table_entry = SET_BIT(table_entry, IS_PRESENT);
 			table_entry = SET_FRAME(table_entry, physical_address);
 
-			table_physical_address[PAGE_TABLE_INDEX(virtual_address)] = table_entry;
+			table_physical_and_virtual_address[PAGE_TABLE_INDEX(virtual_address)] = table_entry;
 			physical_address += BLOCK_SIZE;
 			virtual_address += BLOCK_SIZE;
 		}
-		map_pd_entry_to_page_table(table_physical_address, PAGE_DIRECTORY_INDEX(KERNEL_VIRTUAL_ADDRESS_START + BLOCK_SIZE * PAGES_PER_TABLE * i), page_dir);
+		map_pd_entry_to_page_table(table_physical_and_virtual_address, PAGE_DIRECTORY_INDEX(KERNEL_VIRTUAL_ADDRESS_START + BLOCK_SIZE * PAGES_PER_TABLE * i), page_dir);
 	}
 }
 
@@ -179,7 +179,7 @@ free_region_info_t *allocate_pages_for_heap(uint32_t number_of_pages)
 
 void initialize_addresses_list()
 {
-	uint32_t physical_address = (uint32_t)allocate_block();
+	physical_address physical_address = (uint32_t)allocate_block();
 	map_page(physical_address, FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS);
 	address_of_first_free_region_kernelspace = (free_pages_region_info_t *)FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS;
 	address_of_first_free_region_kernelspace->address = FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE;

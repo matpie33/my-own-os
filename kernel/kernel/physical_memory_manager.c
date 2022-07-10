@@ -51,7 +51,7 @@ int32_t get_first_free_block_index()
 	return -1;
 }
 
-int32_t get_multiple_contiguos_free_blocks(uint32_t number_of_blocks)
+int32_t get_multiple_contiguous_free_blocks(uint32_t number_of_blocks)
 {
 
 	int32_t starting_index = -1;
@@ -141,7 +141,7 @@ void *allocate_blocks(uint32_t number_of_blocks)
 	if (get_free_block_count() <= 0)
 		return 0;
 
-	int32_t block_index = get_multiple_contiguos_free_blocks(number_of_blocks);
+	int32_t block_index = get_multiple_contiguous_free_blocks(number_of_blocks);
 
 	if (block_index == -1)
 		return 0;

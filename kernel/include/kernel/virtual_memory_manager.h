@@ -52,7 +52,7 @@ enum PTE_BIT_NUMBERS
 typedef struct free_pages_region_info
 {
 
-	uint32_t address;
+	virtual_address address;
 	uint32_t number_of_pages;
 	struct free_pages_region_info *address_of_next_region_info;
 

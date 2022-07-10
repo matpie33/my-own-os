@@ -62,17 +62,17 @@ void *kmalloc(uint32_t number_of_bytes)
     return kmalloc(number_of_bytes);
 }
 
-bool is_free_region_adjacent_left(free_region_info_t *region, uint32_t start_address)
+bool is_free_region_adjacent_left(free_region_info_t *region, virtual_address start_address)
 {
     return region->address + region->length == start_address;
 }
 
-bool is_free_region_adjacent_right(free_region_info_t *region, uint32_t start_address, uint32_t length)
+bool is_free_region_adjacent_right(free_region_info_t *region, virtual_address start_address, uint32_t length)
 {
     return region->address == start_address + length;
 }
 
-void kfree(uint32_t start_address, uint32_t number_of_bytes)
+void kfree(virtual_address start_address, uint32_t number_of_bytes)
 {
 
     free_region_info_t *free_region_info = first_free_region;
