@@ -12,6 +12,8 @@
 #include <kernel/physical_memory_manager.h>
 #include <kernel/virtual_memory_manager.h>
 #include <kernel/heap.h>
+#include <kernel/math.h>
+#include <kernel/buddy_alocator.h>
 
 extern void enable_interrupts();
 
@@ -68,6 +70,16 @@ void kernel_main(multiboot_info_t *mbd, uint32_t magic)
 	set_up_paging();
 	set_up_heap();
 	memory_test_2();
+	for (uint32_t i = 0; i <= 600; i++)
+	{
+		void *address = allocate_virtual_block(4096);
+		// printf("a: %d,", (uint32_t)address);
+	}
+
+	for (uint32_t i = 0; i <= 300; i++)
+	{
+		free_virtual_block(VIRTUAL_MEMORY_START + 4096 * (i * 2 + 1), 4096);
+	}
 
 	printf("paging done");
 

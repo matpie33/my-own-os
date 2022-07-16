@@ -14,6 +14,7 @@
 #define SET_BIT(pte, bit) ((pte) | (1 << (bit)))
 #define UNSET_BIT(pte, bit) ((pte) & ~(1 << (bit)))
 #define IS_BIT_SET(pte, bit) ((pte) & (1 << (bit)))
+#define TOGGLE_BIT(number, bit_index) ((number) ^ (1 << (bit_index)))
 #define SET_FRAME(pte, address) ((pte) | (address))
 #define GET_FRAME(pte) ((pte)&0xFFFFF000)
 
@@ -27,6 +28,8 @@
 
 #define PAGE_SIZE 4096
 #define VIRTUAL_MEMORY_LIMIT_32_BIT 0xFFFFFFFF
+
+#define VIRTUAL_MEMORY_START (FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE)
 
 typedef uint32_t pt_entry;
 typedef uint32_t pd_entry;
@@ -61,5 +64,6 @@ typedef struct free_pages_region_info
 void set_up_paging();
 uint32_t *allocate_pages(uint32_t number_of_pages);
 free_region_info_t *allocate_pages_for_heap();
+virtual_address allocate_page();
 
 #endif

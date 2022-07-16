@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <kernel/memory_detecting.h>
 #include <kernel/heap.h>
+#include <kernel/buddy_alocator.h>
 
 uint32_t *current_directory = 0;
 
@@ -16,6 +17,8 @@ extern void flush_tlb_entry(uint32_t *);
 
 free_pages_region_info_t *address_of_first_free_region_kernelspace;
 uint32_t next_free_address_for_heap = KERNEL_VIRTUAL_ADDRESS_START + KERNEL_IMAGE_SIZE;
+
+virtual_address next_free_virtual_address;
 
 void allocate_page_for_table(uint32_t table_virtual_address)
 {
@@ -211,4 +214,24 @@ void set_up_paging()
 
 	enable_paging();
 	initialize_addresses_list();
+	virtual_address virtual_addresses_start = FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE;
+	virtual_address address_for_buddy_region_infos = virtual_addresses_start + power(2, log2(KERNEL_VIRTUAL_ADDRESS_START - virtual_addresses_start));
+	physical_address physical_block = (physical_address)allocate_block();
+
+	map_page(physical_block, address_for_buddy_region_infos);
+	initialize_buddy_blocks(KERNEL_VIRTUAL_ADDRESS_START, address_for_buddy_region_infos);
+	next_free_virtual_address = address_for_buddy_region_infos + PAGE_SIZE;
+}
+
+virtual_address allocate_page()
+{
+	void *physical_block = allocate_block();
+	if (!physical_block)
+	{
+		return 0;
+	}
+	virtual_address virtual_addr = next_free_virtual_address;
+	map_page((physical_address)physical_block, virtual_addr);
+	next_free_virtual_address += PAGE_SIZE;
+	return virtual_addr;
 }
