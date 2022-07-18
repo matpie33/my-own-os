@@ -8,6 +8,13 @@
 #define BLOCKS_PER_INT 32
 #define BITS_PER_BYTE 8
 
+typedef struct regions_bitmap_info
+{
+    uint32_t *bitmap;
+    struct regions_bitmap_info *next_bitmap;
+
+} regions_bitmap_info_t;
+
 void bitmap_set_bit(int bit_number, uint32_t *bitmap);
 void bitmap_unset_bit(int bit_number, uint32_t *bitmap);
 bool bitmap_is_bit_set(int bit_number, uint32_t *bitmap);

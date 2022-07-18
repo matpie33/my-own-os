@@ -5,49 +5,86 @@
 #include <kernel/bitmap.h>
 
 free_block_info_t *first_free_region_info;
-uint32_t *regions_bitmap;
+regions_bitmap_info_t *first_regions_bitmap;
 
 extern inline uint32_t get_regions_bitmap_size()
 {
     return PAGE_SIZE / (8 * sizeof(free_block_info_t) + 1); // page size - size of bitmap = number of structs * size of struct in bytes, number of structs = 8 * size of bitmap in bytes
 }
 
+regions_bitmap_info_t *create_bitmap_info(virtual_address address)
+{
+    regions_bitmap_info_t *bitmap_info = (regions_bitmap_info_t *)address;
+    memset(bitmap_info, 0, sizeof(regions_bitmap_info_t));
+    uint32_t *bitmap = (uint32_t)bitmap_info + sizeof(regions_bitmap_info_t);
+    uint32_t regions_bitmap_size = get_regions_bitmap_size();
+    memset(bitmap, 0, regions_bitmap_size);
+    bitmap_info->bitmap = bitmap;
+    return bitmap_info;
+}
+
 void initialize_buddy_blocks(virtual_address free_addresses_end, virtual_address address_for_first_free_region_info)
 {
-    regions_bitmap = (uint32_t *)address_for_first_free_region_info;
-    uint32_t regions_bitmap_size = get_regions_bitmap_size();
-    memset(regions_bitmap, 0, regions_bitmap_size);
+    first_regions_bitmap = create_bitmap_info(address_for_first_free_region_info);
 
-    first_free_region_info = (free_block_info_t *)(address_for_first_free_region_info + regions_bitmap_size);
+    first_free_region_info = (free_block_info_t *)((uint32_t)first_regions_bitmap->bitmap + get_regions_bitmap_size());
     memset(first_free_region_info, 0, sizeof(free_block_info_t));
     first_free_region_info->address_of_block = 0;
     first_free_region_info->next_block = 0;
     first_free_region_info->previous_block = 0;
     first_free_region_info->size_class = log2(free_addresses_end - VIRTUAL_MEMORY_START);
-    bitmap_set_bit(0, regions_bitmap);
+    first_free_region_info->regions_bitmap_info = first_regions_bitmap;
+    bitmap_set_bit(0, first_regions_bitmap->bitmap);
 }
 
 void free_given_block_info(free_block_info_t *block)
 {
-    uint32_t index_in_regions_bitmap = (uint32_t)block - ((uint32_t)regions_bitmap + get_regions_bitmap_size());
+    regions_bitmap_info_t *bitmap_info = first_regions_bitmap;
+    uint32_t *bitmap = 0;
+    while (bitmap_info != block->regions_bitmap_info && bitmap_info->next_bitmap)
+    {
+        bitmap_info = bitmap_info->next_bitmap;
+    }
+    uint32_t index_in_regions_bitmap = (uint32_t)block - ((uint32_t)bitmap_info->bitmap + get_regions_bitmap_size());
     index_in_regions_bitmap /= sizeof(free_block_info_t);
-    bitmap_unset_bit(index_in_regions_bitmap, regions_bitmap);
+    bitmap_unset_bit(index_in_regions_bitmap, bitmap_info->bitmap);
 }
 
-void *allocate_free_block_info()
+free_block_info_t *allocate_free_block_info()
 {
     uint32_t number_of_blocks = get_regions_bitmap_size() * BITS_PER_BYTE;
-    int32_t first_free_block = get_first_free_block_index(regions_bitmap, number_of_blocks);
-    printf("b %d,", first_free_block);
-    bitmap_set_bit(first_free_block, regions_bitmap);
-    if (first_free_block != -1)
+
+    regions_bitmap_info_t *bitmap_info = first_regions_bitmap;
+    int32_t first_free_block = -1;
+    while (bitmap_info)
     {
-        return (void *)((uint32_t)regions_bitmap + get_regions_bitmap_size() + first_free_block * sizeof(free_block_info_t));
+        first_free_block = get_first_free_block_index(bitmap_info->bitmap, number_of_blocks);
+        if (first_free_block != -1)
+        {
+            printf("b %d,", first_free_block);
+            bitmap_set_bit(first_free_block, bitmap_info->bitmap);
+            free_block_info_t *free_block_info = (free_block_info_t *)((uint32_t)bitmap_info->bitmap + get_regions_bitmap_size() + first_free_block * sizeof(free_block_info_t));
+            memset(free_block_info, 0, sizeof(free_block_info_t));
+            free_block_info->regions_bitmap_info = bitmap_info;
+            return free_block_info;
+        }
+        bitmap_info = bitmap_info->next_bitmap;
     }
-    else
+
+    virtual_address new_page = allocate_page();
+    if (!new_page)
     {
         return 0;
     }
+    regions_bitmap_info_t *new_bitmap_info = create_bitmap_info(new_page);
+
+    regions_bitmap_info_t *last_bitmap = first_regions_bitmap;
+    while (last_bitmap->next_bitmap)
+    {
+        last_bitmap = last_bitmap->next_bitmap;
+    }
+    last_bitmap->next_bitmap = new_bitmap_info;
+    return allocate_free_block_info();
 }
 
 void *allocate_virtual_block(uint32_t request_size)
@@ -63,13 +100,11 @@ void *allocate_virtual_block(uint32_t request_size)
     while (size_class >= MINIMUM_BUDDY_BLOCK_SIZE_CLASS && request_size <= power(2, size_class - 1))
     {
         uint32_t buddy_address = TOGGLE_BIT(block->address_of_block, size_class - 1);
-        virtual_address block_info_address = (virtual_address)allocate_free_block_info();
-        if (!block_info_address)
+        free_block_info_t *buddy_block = allocate_free_block_info();
+        if (!buddy_block)
         {
             return 0;
         }
-        free_block_info_t *buddy_block = (free_block_info_t *)block_info_address;
-        memset(buddy_block, 0, sizeof(free_block_info_t));
         buddy_block->address_of_block = buddy_address;
         if (block->next_block)
         {

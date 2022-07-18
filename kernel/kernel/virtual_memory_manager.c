@@ -226,7 +226,7 @@ void set_up_paging()
 virtual_address allocate_page()
 {
 	void *physical_block = allocate_block();
-	if (!physical_block)
+	if (!physical_block || next_free_virtual_address == KERNEL_VIRTUAL_ADDRESS_START)
 	{
 		return 0;
 	}

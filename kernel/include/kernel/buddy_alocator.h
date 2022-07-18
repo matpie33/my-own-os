@@ -15,6 +15,7 @@ typedef struct free_block_info
     uint32_t size_class; // exponent of power of 2
     struct free_block_info *previous_block;
     struct free_block_info *next_block;
+    regions_bitmap_info_t *regions_bitmap_info;
 
 } free_block_info_t;
 

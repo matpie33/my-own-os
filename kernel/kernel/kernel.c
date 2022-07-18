@@ -70,17 +70,18 @@ void kernel_main(multiboot_info_t *mbd, uint32_t magic)
 	set_up_paging();
 	set_up_heap();
 	memory_test_2();
-	for (uint32_t i = 0; i <= 600; i++)
+	for (uint32_t i = 0; i <= 5242; i++)
 	{
 		void *address = allocate_virtual_block(4096);
 		// printf("a: %d,", (uint32_t)address);
 	}
 
-	for (uint32_t i = 0; i <= 300; i++)
+	for (uint32_t i = 0; i <= 2621; i++)
 	{
 		free_virtual_block(VIRTUAL_MEMORY_START + 4096 * (i * 2 + 1), 4096);
 	}
 
+	virtual_address allocated = (virtual_address)allocate_virtual_block(4096);
 	printf("paging done");
 
 	// init_timer(50);
