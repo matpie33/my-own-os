@@ -12,7 +12,6 @@ void print_free_regions()
     free_region_info_t *free_region_info = first_free_region;
     while (free_region_info)
     {
-        printf("free region addr %d length %d\n", free_region_info->address, free_region_info->length);
         free_region_info = free_region_info->next_region;
     }
 }

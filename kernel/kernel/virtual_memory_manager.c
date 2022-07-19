@@ -48,30 +48,20 @@ void map_page(physical_address physical_addr, virtual_address virtual_addr)
 	flush_tlb_entry((uint32_t *)virtual_addr);
 }
 
-uint32_t *allocate_pages(uint32_t number_of_pages)
+void *allocate_pages(uint32_t number_of_pages)
 {
 
-	uint32_t *virtual_address;
-	free_pages_region_info_t *address_of_free_space = address_of_first_free_region_kernelspace;
-	while (address_of_free_space)
+	virtual_address virtual_block_address = (virtual_address)allocate_virtual_block(number_of_pages * PAGE_SIZE);
+	if (!virtual_block_address)
 	{
-		if (address_of_free_space->number_of_pages > number_of_pages)
-		{
-			physical_address first_block_address = (physical_address)allocate_blocks(number_of_pages);
-			virtual_address = (uint32_t *)address_of_free_space->address;
-			for (uint32_t j = 0; j < number_of_pages; j++)
-			{
-				map_page(first_block_address + j * BLOCK_SIZE, address_of_free_space->address + j * PAGE_SIZE);
-			}
-			address_of_free_space->address += number_of_pages * PAGE_SIZE;
-			address_of_free_space->number_of_pages -= number_of_pages;
-			printf("addresses now: address %d, number of pages: %d", address_of_free_space->address, address_of_free_space->number_of_pages);
-			return virtual_address;
-		}
-		address_of_free_space = address_of_free_space->address_of_next_region_info;
+		return 0;
 	}
-
-	return 0;
+	for (uint32_t j = 0; j < number_of_pages; j++)
+	{
+		physical_address physical_block_address = allocate_block();
+		map_page(physical_block_address, virtual_block_address + j * PAGE_SIZE);
+	}
+	return virtual_block_address;
 }
 
 void unmap_page(virtual_address virtual_address)
@@ -80,12 +70,13 @@ void unmap_page(virtual_address virtual_address)
 	physical_address frame_address = GET_FRAME(table[PAGE_TABLE_INDEX(virtual_address)]);
 	printf("freeing block: %d", frame_address);
 	free_block((void *)frame_address);
+
 	table[PAGE_TABLE_INDEX(virtual_address)] = 0;
 }
 
-void free_page(uint32_t *virtual_address, uint32_t number_of_pages)
+void free_pages(uint32_t *virtual_address, uint32_t number_of_pages)
 {
-
+	free_virtual_block(virtual_address, number_of_pages * PAGE_SIZE);
 	for (uint32_t i = 0; i < number_of_pages; i++)
 	{
 		unmap_page((uint32_t)virtual_address + PAGE_SIZE * i);
@@ -175,20 +166,8 @@ free_region_info_t *allocate_pages_for_heap(uint32_t number_of_pages)
 	free_region_info->address = next_free_address_for_heap + size_of_info;
 	free_region_info->length = number_of_pages * PAGE_SIZE - size_of_info;
 
-	printf("address of heap: %d", next_free_address_for_heap);
 	next_free_address_for_heap += number_of_pages * PAGE_SIZE;
 	return free_region_info;
-}
-
-void initialize_addresses_list()
-{
-	physical_address physical_address = (uint32_t)allocate_block();
-	map_page(physical_address, FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS);
-	address_of_first_free_region_kernelspace = (free_pages_region_info_t *)FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS;
-	address_of_first_free_region_kernelspace->address = FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE;
-	address_of_first_free_region_kernelspace->number_of_pages = (KERNEL_VIRTUAL_ADDRESS_START - address_of_first_free_region_kernelspace->address) / PAGE_SIZE;
-	address_of_first_free_region_kernelspace->address_of_next_region_info = 0;
-	printf("addresses at start: address %d, number of pages: %d", address_of_first_free_region_kernelspace->address, address_of_first_free_region_kernelspace->number_of_pages);
 }
 
 void set_up_paging()
@@ -213,9 +192,11 @@ void set_up_paging()
 	switch_page_directory(page_dir);
 
 	enable_paging();
-	initialize_addresses_list();
-	virtual_address virtual_addresses_start = FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE;
-	virtual_address address_for_buddy_region_infos = virtual_addresses_start + power(2, log2(KERNEL_VIRTUAL_ADDRESS_START - virtual_addresses_start));
+}
+
+void initialize_virtual_memory_regions()
+{
+	virtual_address address_for_buddy_region_infos = VIRTUAL_MEMORY_START + power(2, log2(KERNEL_VIRTUAL_ADDRESS_START - VIRTUAL_MEMORY_START));
 	physical_address physical_block = (physical_address)allocate_block();
 
 	map_page(physical_block, address_for_buddy_region_infos);

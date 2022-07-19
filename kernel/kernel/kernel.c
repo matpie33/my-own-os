@@ -68,21 +68,15 @@ void kernel_main(multiboot_info_t *mbd, uint32_t magic)
 	set_display_pressed_keys_on_screen(true);
 
 	set_up_paging();
+	initialize_virtual_memory_regions();
 	set_up_heap();
-	memory_test_2();
-	for (uint32_t i = 0; i <= 5242; i++)
-	{
-		void *address = allocate_virtual_block(4096);
-		// printf("a: %d,", (uint32_t)address);
-	}
 
-	for (uint32_t i = 0; i <= 2621; i++)
-	{
-		free_virtual_block(VIRTUAL_MEMORY_START + 4096 * (i * 2 + 1), 4096);
-	}
+	uint32_t *pages = (uint32_t *)allocate_pages(100);
+	free_pages((virtual_address)pages, 100);
 
-	virtual_address allocated = (virtual_address)allocate_virtual_block(4096);
-	printf("paging done");
+	printf("Interrupts setup\n");
+	printf("Keyboard initialized\n");
+	printf("Paging enabled\n");
 
 	// init_timer(50);
 	for (;;)

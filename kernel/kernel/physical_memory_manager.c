@@ -18,7 +18,7 @@ void init_free_region(uint64_t base_address, uint64_t size)
 
 	uint64_t block_index = divide_round_up(base_address, BLOCK_SIZE);
 	uint64_t number_of_blocks = divide_round_up(size, BLOCK_SIZE);
-	printf("initializing free region address: %lli, number of blocks: %lli\n", base_address, number_of_blocks);
+	printf("Free region address: %lli, number of blocks (4kb): %lli\n", base_address, number_of_blocks);
 
 	for (; number_of_blocks > 0; number_of_blocks--)
 	{
@@ -82,7 +82,6 @@ void *allocate_blocks(uint32_t number_of_blocks)
 
 	uint32_t addr = block_index * BLOCK_SIZE;
 
-	printf("allocated address %d for n = %d blocks\n", addr, number_of_blocks);
 	return (void *)addr;
 }
 
@@ -129,7 +128,6 @@ void initialize(memory_info memory_info)
 				memory_bitmap = (uint32_t *)address;
 			}
 			uint64_t bytes_used_for_bitmap = total_blocks / BLOCKS_PER_BYTE;
-			printf("memory bitmap address: %d size %lli\n", (uint32_t)memory_bitmap, bytes_used_for_bitmap);
 			region.address += bytes_used_for_bitmap;
 			region.length -= bytes_used_for_bitmap;
 			memory_info.free_memory_regions[i] = region;
@@ -144,7 +142,4 @@ void initialize(memory_info memory_info)
 		memory_region region = memory_info.free_memory_regions[i];
 		init_free_region(region.address, region.length);
 	}
-
-	printf("total blocks: %d\n", total_blocks);
-	printf("used blocks: %d\n", used_blocks);
 }

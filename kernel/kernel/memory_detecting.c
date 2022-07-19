@@ -59,7 +59,6 @@ memory_info detect_memory(multiboot_info_t *multiboot_info, uint32_t magic)
             {
                 uint32_t address_casted = (uint32_t)address;
                 memory_region *memory_regions = (memory_region *)address_casted;
-                printf("memory regions array is in: %d\n", memory_regions);
                 memory_info.free_memory_regions = memory_regions;
                 address += bytes_for_memory_regions_array;
                 length -= bytes_for_memory_regions_array;

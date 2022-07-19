@@ -22,14 +22,12 @@
 
 #define VIRTUAL_ADDRESS_OF_PAGE_TABLE_0 0xffc00000
 
-#define FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS 0x400000
-
 #define KERNEL_IMAGE_SIZE 16777216
 
 #define PAGE_SIZE 4096
 #define VIRTUAL_MEMORY_LIMIT_32_BIT 0xFFFFFFFF
 
-#define VIRTUAL_MEMORY_START (FREE_VIRTUAL_REGIONS_STRUCT_ADDRESS + PAGE_SIZE)
+#define VIRTUAL_MEMORY_START 0x400000
 
 typedef uint32_t pt_entry;
 typedef uint32_t pd_entry;
@@ -62,8 +60,10 @@ typedef struct free_pages_region_info
 } free_pages_region_info_t;
 
 void set_up_paging();
-uint32_t *allocate_pages(uint32_t number_of_pages);
+void *allocate_pages(uint32_t number_of_pages);
 free_region_info_t *allocate_pages_for_heap();
 virtual_address allocate_page();
+void free_pages(uint32_t *virtual_address, uint32_t number_of_pages);
+void initialize_virtual_memory_regions();
 
 #endif
