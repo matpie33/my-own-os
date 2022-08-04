@@ -43,9 +43,10 @@ kernel/memory_detecting.o \
 kernel/physical_memory_manager.o \
 kernel/virtual_memory_manager.o \
 kernel/math.o \
-kernel/heap.o \
 kernel/buddy_alocator.o \
 kernel/bitmap.o \
+kernel/string_utils.o \
+kernel/slab_allocator.o \
 
 OBJS=\
 $(ARCHDIR)/crti.o \

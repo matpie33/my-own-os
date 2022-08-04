@@ -11,9 +11,9 @@
 #include <kernel/memory_detecting.h>
 #include <kernel/physical_memory_manager.h>
 #include <kernel/virtual_memory_manager.h>
-#include <kernel/heap.h>
 #include <kernel/math.h>
 #include <kernel/buddy_alocator.h>
+#include <kernel/slab_allocator.h>
 
 extern void enable_interrupts();
 
@@ -30,28 +30,28 @@ void memory_test()
 
 void memory_test_1()
 {
-	void *first = kmalloc(15);
-	void *second = kmalloc(5);
-	void *third = kmalloc(5);
-	kfree((uint32_t)first, 15);
-	printf("after freeing first\n");
-	print_free_regions();
-	kfree((uint32_t)third, 5);
-	printf("after freeing third\n");
-	print_free_regions();
-	kfree((uint32_t)second, 5);
-	printf("after freeing second\n");
-	print_free_regions();
+	// void *first = kmalloc(15);
+	// void *second = kmalloc(5);
+	// void *third = kmalloc(5);
+	// kfree((uint32_t)first, 15);
+	// printf("after freeing first\n");
+	// print_free_regions();
+	// kfree((uint32_t)third, 5);
+	// printf("after freeing third\n");
+	// print_free_regions();
+	// kfree((uint32_t)second, 5);
+	// printf("after freeing second\n");
+	// print_free_regions();
 }
 
 void memory_test_2()
 {
-	kmalloc(100000);
-	printf("after malloc 100000: ");
-	print_free_regions();
-	kmalloc(3000);
-	printf("after malloc 3000 free regions");
-	print_free_regions();
+	// kmalloc(100000);
+	// printf("after malloc 100000: ");
+	// print_free_regions();
+	// kmalloc(3000);
+	// printf("after malloc 3000 free regions");
+	// print_free_regions();
 }
 
 void kernel_main(multiboot_info_t *mbd, uint32_t magic)
@@ -69,7 +69,6 @@ void kernel_main(multiboot_info_t *mbd, uint32_t magic)
 
 	set_up_paging();
 	initialize_virtual_memory_regions();
-	set_up_heap();
 
 	uint32_t *pages = (uint32_t *)allocate_pages(100);
 	free_pages((virtual_address)pages, 100);
@@ -77,6 +76,8 @@ void kernel_main(multiboot_info_t *mbd, uint32_t magic)
 	printf("Interrupts setup\n");
 	printf("Keyboard initialized\n");
 	printf("Paging enabled\n");
+
+	initialize_slab_allocator();
 
 	// init_timer(50);
 	for (;;)

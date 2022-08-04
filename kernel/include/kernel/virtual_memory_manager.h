@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <kernel/heap.h>
 
 #define PAGES_PER_TABLE 1024
 #define PAGE_TABLES_PER_DIRECTORY 1024
@@ -61,7 +60,6 @@ typedef struct free_pages_region_info
 
 void set_up_paging();
 void *allocate_pages(uint32_t number_of_pages);
-free_region_info_t *allocate_pages_for_heap();
 virtual_address allocate_page();
 void free_pages(uint32_t *virtual_address, uint32_t number_of_pages);
 void initialize_virtual_memory_regions();

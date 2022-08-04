@@ -6,7 +6,6 @@
 #include <kernel/math.h>
 #include <stdio.h>
 #include <kernel/memory_detecting.h>
-#include <kernel/heap.h>
 #include <kernel/buddy_alocator.h>
 
 uint32_t *current_directory = 0;
@@ -61,6 +60,7 @@ void *allocate_pages(uint32_t number_of_pages)
 		physical_address physical_block_address = allocate_block();
 		map_page(physical_block_address, virtual_block_address + j * PAGE_SIZE);
 	}
+	memset((void *)virtual_block_address, 0, number_of_pages*PAGE_SIZE);
 	return virtual_block_address;
 }
 
@@ -147,27 +147,6 @@ void map_kernel_to_3_gb(physical_address physical_address, virtual_address virtu
 		}
 		map_pd_entry_to_page_table(table_physical_and_virtual_address, PAGE_DIRECTORY_INDEX(KERNEL_VIRTUAL_ADDRESS_START + BLOCK_SIZE * PAGES_PER_TABLE * i), page_dir);
 	}
-}
-
-free_region_info_t *allocate_pages_for_heap(uint32_t number_of_pages)
-{
-	if (next_free_address_for_heap + number_of_pages * PAGE_SIZE >= VIRTUAL_MEMORY_LIMIT_32_BIT)
-	{
-		return 0;
-	}
-	for (uint32_t i = 0; i < number_of_pages; i++)
-	{
-		uint32_t free_block = (uint32_t)allocate_block();
-		map_page(free_block, next_free_address_for_heap + i * PAGE_SIZE);
-	}
-	free_region_info_t *free_region_info = (free_region_info_t *)next_free_address_for_heap;
-	size_t size_of_info = sizeof(free_region_info_t);
-	memset(free_region_info, 0, size_of_info);
-	free_region_info->address = next_free_address_for_heap + size_of_info;
-	free_region_info->length = number_of_pages * PAGE_SIZE - size_of_info;
-
-	next_free_address_for_heap += number_of_pages * PAGE_SIZE;
-	return free_region_info;
 }
 
 void set_up_paging()
